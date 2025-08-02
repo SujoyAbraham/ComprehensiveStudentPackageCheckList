@@ -1,1 +1,13 @@
-{}
+{
+  "functions": {
+    "api/user-data.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/config.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "env": {
+    "EDGE_CONFIG": "ecfg_8q6lvahkhhlt83r2yw3lyfk3rywy"
+  }
+}

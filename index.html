@@ -798,17 +798,70 @@
         let appConfig = {};
         let userData = {};
         let isSharedMode = false;
+        let userProgress = {};
+        let isLoading = false;
 
         async function initializeChecklist() {
             await loadAppConfig();
-            loadCustomItems();
+            await loadUserData();
             checkForSharedChecklist();
             checkUserSetup();
-            showCacheWarnings();
             renderCategories();
             attachEventListeners();
             updateProgress();
             displayTips();
+        }
+
+        // Edge Config API functions
+        async function loadUserData() {
+            try {
+                const response = await fetch('/api/user-data');
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.data) {
+                        userData = {
+                            firstName: result.data.firstName,
+                            lastName: result.data.lastName
+                        };
+                        userProgress = result.data.progress || {};
+                        customItems = result.data.customItems || {};
+                        console.log('User data loaded from Edge Config');
+                    }
+                }
+            } catch (error) {
+                console.warn('Failed to load user data from Edge Config:', error);
+            }
+        }
+
+        async function saveUserData() {
+            if (isLoading) return;
+            isLoading = true;
+            
+            try {
+                const response = await fetch('/api/user-data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        firstName: userData.firstName,
+                        lastName: userData.lastName,
+                        progress: userProgress,
+                        customItems: customItems
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('User data saved to Edge Config, size:', result.dataSize, 'bytes');
+                } else {
+                    console.error('Failed to save user data');
+                }
+            } catch (error) {
+                console.error('Error saving user data:', error);
+            } finally {
+                isLoading = false;
+            }
         }
 
         function checkForSharedChecklist() {
@@ -903,12 +956,9 @@
                     return;
                 }
                 
-                const firstName = localStorage.getItem('user-first-name');
-                const lastName = localStorage.getItem('user-last-name');
+                console.log('Checking user setup:', userData);
                 
-                console.log('Checking user setup:', { firstName, lastName });
-                
-                if (!firstName || !lastName) {
+                if (!userData.firstName || !userData.lastName) {
                     console.log('No user data found, showing setup modal');
                     const modal = document.getElementById('user-setup');
                     if (modal) {
@@ -958,17 +1008,10 @@
                     return;
                 }
                 
-                // Test localStorage
-                try {
-                    localStorage.setItem('user-first-name', firstName);
-                    localStorage.setItem('user-last-name', lastName);
-                } catch (storageError) {
-                    console.error('LocalStorage error:', storageError);
-                    alert('Unable to save data. Please check if cookies/localStorage are enabled.');
-                    return;
-                }
-                
                 userData = { firstName, lastName };
+                
+                // Save to Edge Config
+                saveUserData();
                 
                 // Hide modal
                 const modal = document.getElementById('user-setup');
@@ -1134,8 +1177,8 @@
         function renderCategoryItems(categoryName, items) {
             return items.map((item, index) => {
                 const itemId = `${categoryName}-${index}`;
-                const packed = localStorage.getItem(`packed-${itemId}`) === 'true';
-                const purchased = localStorage.getItem(`purchased-${itemId}`) === 'true';
+                const packed = userProgress[`packed-${itemId}`] === 'true';
+                const purchased = userProgress[`purchased-${itemId}`] === 'true';
                 
                 if (!shouldShowItem(item, packed)) {
                     return '';
@@ -1220,7 +1263,7 @@
                 items.forEach((item, index) => {
                     totalItems++;
                     const itemId = `${categoryName}-${index}`;
-                    if (localStorage.getItem(`packed-${itemId}`) === 'true') {
+                    if (userProgress[`packed-${itemId}`] === 'true') {
                         packedItems++;
                     }
                 });
@@ -1297,8 +1340,8 @@
             Object.entries(checklistData).forEach(([categoryName, items]) => {
                 items.forEach((item, index) => {
                     const itemId = `${categoryName}-${index}`;
-                    const packed = localStorage.getItem(`packed-${itemId}`) === 'true';
-                    const purchased = localStorage.getItem(`purchased-${itemId}`) === 'true';
+                    const packed = userProgress[`packed-${itemId}`] === 'true';
+                    const purchased = userProgress[`purchased-${itemId}`] === 'true';
                     
                     let status = 'Pending';
                     if (packed && purchased) status = 'Complete';
@@ -1325,8 +1368,8 @@
                 items.forEach((item, index) => {
                     totalItems++;
                     const itemId = `${categoryName}-${index}`;
-                    const packed = localStorage.getItem(`packed-${itemId}`) === 'true';
-                    const purchased = localStorage.getItem(`purchased-${itemId}`) === 'true';
+                    const packed = userProgress[`packed-${itemId}`] === 'true';
+                    const purchased = userProgress[`purchased-${itemId}`] === 'true';
                     
                     if (packed) packedItems++;
                     if (purchased) purchasedItems++;
@@ -1434,13 +1477,16 @@
             await shareChecklist();
         }
 
-        // Update item status and save to localStorage
+        // Update item status and save to Edge Config
         function updateStatus(type, itemId, checked) {
-            localStorage.setItem(`${type}-${itemId}`, checked);
+            userProgress[`${type}-${itemId}`] = checked;
+            
+            // Save to Edge Config (debounced)
+            debouncedSave();
             
             const row = document.getElementById(`row-${itemId}`);
-            const packed = localStorage.getItem(`packed-${itemId}`) === 'true';
-            const purchased = localStorage.getItem(`purchased-${itemId}`) === 'true';
+            const packed = userProgress[`packed-${itemId}`] === 'true';
+            const purchased = userProgress[`purchased-${itemId}`] === 'true';
             
             if (packed && purchased) {
                 row.classList.add('completed-row');
@@ -1451,8 +1497,16 @@
             updateProgress();
         }
 
+        // Debounced save to avoid too many API calls
+        let saveTimeout;
+        function debouncedSave() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                saveUserData();
+            }, 1000); // Save after 1 second of inactivity
+        }
+
         // Custom Item Management Functions
-        let customItems = JSON.parse(localStorage.getItem('customItems') || '{}');
         let editingItemId = null;
 
         function showAddItemModal() {
@@ -1548,8 +1602,8 @@
             checklistData[categoryName].push(itemData);
             customItems[categoryName].push(itemData);
             
-            // Save to localStorage
-            localStorage.setItem('customItems', JSON.stringify(customItems));
+            // Save to Edge Config
+            debouncedSave();
         }
 
         function updateExistingItem(categoryName, itemData) {
@@ -1567,7 +1621,7 @@
                 }
                 customItems[category][itemIndex] = itemData;
                 
-                localStorage.setItem('customItems', JSON.stringify(customItems));
+                debouncedSave();
             }
         }
 
@@ -1579,13 +1633,14 @@
                 // Remove from customItems if it exists
                 if (customItems[categoryName] && customItems[categoryName][itemIndex]) {
                     customItems[categoryName].splice(itemIndex, 1);
-                    localStorage.setItem('customItems', JSON.stringify(customItems));
+                    debouncedSave();
                 }
                 
-                // Clean up localStorage for this item's status
+                // Clean up progress for this item's status
                 const itemId = `${categoryName}-${itemIndex}`;
-                localStorage.removeItem(`packed-${itemId}`);
-                localStorage.removeItem(`purchased-${itemId}`);
+                delete userProgress[`packed-${itemId}`];
+                delete userProgress[`purchased-${itemId}`];
+                debouncedSave();
                 
                 renderCategories();
                 updateProgress();
