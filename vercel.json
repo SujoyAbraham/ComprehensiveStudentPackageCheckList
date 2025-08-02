@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/config.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/share.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "env": {
+    "EDGE_CONFIG": "@edge-config-checklist"
+  }
+}

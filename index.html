@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Package Checklist - India to Germany</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls h3 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 20px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .category {
+            background: white;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .category-header {
+            background: #667eea;
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-header h2 {
+            font-size: 1.5em;
+        }
+
+        .category-toggle {
+            font-size: 1.2em;
+        }
+
+        .category-content {
+            padding: 0;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .priority-high {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .priority-medium {
+            color: #fd7e14;
+            font-weight: bold;
+        }
+
+        .priority-low {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .checkbox {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        .completed-row {
+            background: #f8f9fa;
+            opacity: 0.7;
+        }
+
+        .cost {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .filter-group {
+                flex-direction: column;
+            }
+
+            th, td {
+                padding: 8px;
+                font-size: 14px;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .user-setup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .user-setup-modal {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .user-setup-modal h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .user-setup-modal input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 10px 0;
+            transition: border-color 0.3s;
+        }
+
+        .user-setup-modal input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .user-setup-modal button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.3s;
+        }
+
+        .user-setup-modal button:hover {
+            transform: translateY(-2px);
+        }
+
+        .welcome-text {
+            font-size: 1.1em;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.4em;
+        }
+
+        .close {
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+
+        .close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: #fafafa;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background-color: white;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 2px solid #e0e0e0;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        /* Item actions */
+        .item-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .checklist-item:hover .item-actions {
+            opacity: 1;
+        }
+
+        .btn-edit, .btn-delete {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-edit {
+            color: #007bff;
+        }
+
+        .btn-edit:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        .btn-delete {
+            color: #dc3545;
+        }
+
+        .btn-delete:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        /* Custom items badge */
+        .custom-item-badge {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+            font-weight: bold;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn-primary, .btn-secondary {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- User Setup Modal -->
+    <div id="user-setup" class="user-setup hidden">
+        <div class="user-setup-modal">
+            <h2>🎓 Welcome to Your Personal Study Abroad Checklist!</h2>
+            <p style="margin-bottom: 20px; color: #666;">Let's personalize your packing experience for your journey from India to Germany.</p>
+            
+            <input type="text" id="first-name" placeholder="Enter your first name" required>
+            <input type="text" id="last-name" placeholder="Enter your last name" required>
+            
+            <button onclick="saveUserInfo()">Start My Journey 🚀</button>
+            
+            <p style="font-size: 0.9em; color: #888; margin-top: 15px;">
+                Your information is stored securely in your browser and never shared.
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1 id="main-title">🎓 Student Package Checklist</h1>
+            <p id="main-subtitle">India to Germany - Complete Relocation Guide</p>
+            <div id="welcome-message" class="welcome-text hidden"></div>
+            <div id="cache-warning" style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 0.9em;">
+                ⚠️ <strong>Important:</strong> Your progress is saved in browser cache. Please don't clear browser data to keep your checklist progress!
+            </div>
+        </div>
+
+        <div class="controls">
+            <h3>📊 Progress & Filters</h3>
+            <div class="progress-text">
+                <span id="progress-text">0 of 0 items packed (0%)</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+
+            <div class="filter-group">
+                <label>
+                    <input type="checkbox" id="filter-high" checked> High Priority
+                </label>
+                <label>
+                    <input type="checkbox" id="filter-medium" checked> Medium Priority
+                </label>
+                <label>
+                    <input type="checkbox" id="filter-low" checked> Low Priority
+                </label>
+                <label>
+                    <input type="checkbox" id="filter-packed"> Show Only Packed
+                </label>
+                <label>
+                    <input type="checkbox" id="filter-unpacked"> Show Only Unpacked
+                </label>
+            </div>
+
+            <input type="text" class="search-box" id="search-box" placeholder="🔍 Search items...">
+            
+            <div style="margin-top: 15px; text-align: center; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <button onclick="exportToExcel()" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: transform 0.3s;">
+                    📊 Export to Excel
+                </button>
+                <button onclick="shareChecklist()" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: transform 0.3s;">
+                    🔗 Share Checklist
+                </button>
+                <button onclick="syncWithShared()" id="sync-btn" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: transform 0.3s; display: none;">
+                    🔄 Sync Progress
+                </button>
+                <button onclick="showAddItemModal()" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: transform 0.3s;">
+                    ➕ Add Custom Item
+                </button>
+            </div>
+        </div>
+
+        <div id="categories-container">
+            <!-- Categories will be populated by JavaScript -->
+        </div>
+
+        <!-- Add/Edit Item Modal -->
+        <div id="item-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modal-title">Add Custom Item</h3>
+                    <span class="close" onclick="closeItemModal()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="item-form" onsubmit="saveItem(event)">
+                        <input type="hidden" id="edit-item-id" value="">
+                        
+                        <div class="form-group">
+                            <label for="item-name">Item Name *</label>
+                            <input type="text" id="item-name" required placeholder="e.g., Extra Power Bank">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="item-quantity">Quantity</label>
+                                <input type="number" id="item-quantity" min="1" value="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="item-priority">Priority</label>
+                                <select id="item-priority">
+                                    <option value="High">🔴 High</option>
+                                    <option value="Medium" selected>🟡 Medium</option>
+                                    <option value="Low">🟢 Low</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="item-cost">Estimated Cost (₹)</label>
+                            <input type="number" id="item-cost" min="0" step="0.01" placeholder="e.g., 2500">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="item-category">Category</label>
+                            <select id="item-category">
+                                <option value="Custom Items">📝 Custom Items</option>
+                                <option value="Essential Documents">📄 Essential Documents</option>
+                                <option value="Electronics">🔌 Electronics</option>
+                                <option value="Clothing">👔 Clothing</option>
+                                <option value="Personal Care">🧴 Personal Care</option>
+                                <option value="Academic Materials">📚 Academic Materials</option>
+                                <option value="Kitchen Items">🍳 Kitchen Items</option>
+                                <option value="Medical & Health">💊 Medical & Health</option>
+                                <option value="Financial">💰 Financial</option>
+                                <option value="Miscellaneous">📦 Miscellaneous</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="item-remarks">Remarks</label>
+                            <textarea id="item-remarks" rows="2" placeholder="Additional notes about this item"></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" onclick="closeItemModal()" class="btn-secondary">Cancel</button>
+                            <button type="submit" class="btn-primary" id="save-btn">Add Item</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const checklistData = {
+            "Clothing": [
+                {"item": "Winter Jacket (Heavy)", "quantity": "1-2", "remarks": "Essential for German winters (-10°C to 5°C)", "cost": "3000-8000", "priority": "High"},
+                {"item": "Thermal Underwear", "quantity": "3-4 sets", "remarks": "Base layer for winter", "cost": "1500-3000", "priority": "High"},
+                {"item": "Warm Sweaters/Hoodies", "quantity": "4-5", "remarks": "Wool or fleece material", "cost": "2000-5000", "priority": "High"},
+                {"item": "Jeans/Trousers", "quantity": "4-5", "remarks": "Regular and warm varieties", "cost": "2000-4000", "priority": "Medium"},
+                {"item": "Formal Shirts", "quantity": "3-4", "remarks": "For presentations and interviews", "cost": "1500-3000", "priority": "Medium"},
+                {"item": "T-Shirts", "quantity": "6-8", "remarks": "Cotton and synthetic blend", "cost": "1200-2400", "priority": "Medium"},
+                {"item": "Undergarments", "quantity": "10-12", "remarks": "Include thermal variants", "cost": "1000-2000", "priority": "High"},
+                {"item": "Socks (Winter)", "quantity": "8-10 pairs", "remarks": "Wool or thermal socks", "cost": "800-1500", "priority": "High"},
+                {"item": "Sleepwear", "quantity": "3-4 sets", "remarks": "Warm pajamas for winter", "cost": "1000-2000", "priority": "Medium"},
+                {"item": "Raincoat/Windbreaker", "quantity": "1", "remarks": "For frequent rain", "cost": "1500-3000", "priority": "Medium"}
+            ],
+            "Footwear": [
+                {"item": "Winter Boots", "quantity": "1 pair", "remarks": "Waterproof, for snow and rain", "cost": "3000-6000", "priority": "High"},
+                {"item": "Casual Shoes", "quantity": "2 pairs", "remarks": "Comfortable for daily wear", "cost": "2000-4000", "priority": "Medium"},
+                {"item": "Formal Shoes", "quantity": "1 pair", "remarks": "For interviews and formal events", "cost": "2000-4000", "priority": "Medium"},
+                {"item": "Sports Shoes", "quantity": "1 pair", "remarks": "For gym and outdoor activities", "cost": "2000-5000", "priority": "Medium"},
+                {"item": "House Slippers", "quantity": "1 pair", "remarks": "Indoor use", "cost": "300-800", "priority": "Low"},
+                {"item": "Sandals", "quantity": "1 pair", "remarks": "For summer months", "cost": "800-1500", "priority": "Low"}
+            ],
+            "Kitchen Essentials": [
+                {"item": "Pressure Cooker (Small)", "quantity": "1", "remarks": "Essential for Indian cooking", "cost": "1500-3000", "priority": "High"},
+                {"item": "Rice Cooker", "quantity": "1", "remarks": "Convenient for daily use", "cost": "2000-4000", "priority": "Medium"},
+                {"item": "Non-stick Pan Set", "quantity": "2-3", "remarks": "Different sizes", "cost": "1500-3000", "priority": "Medium"},
+                {"item": "Steel Utensils Set", "quantity": "1 set", "remarks": "Plates, bowls, glasses", "cost": "1000-2000", "priority": "Medium"},
+                {"item": "Knife Set", "quantity": "1 set", "remarks": "Basic kitchen knives", "cost": "1000-2000", "priority": "Medium"},
+                {"item": "Spice Box (Masala Dabba)", "quantity": "1", "remarks": "Traditional Indian spice container", "cost": "500-1000", "priority": "High"},
+                {"item": "Thermos/Insulated Bottles", "quantity": "2", "remarks": "For hot beverages", "cost": "800-1500", "priority": "Medium"},
+                {"item": "Lunch Box", "quantity": "1-2", "remarks": "For carrying meals", "cost": "500-1000", "priority": "Medium"},
+                {"item": "Cutting Board", "quantity": "1", "remarks": "Wooden or plastic", "cost": "300-800", "priority": "Low"},
+                {"item": "Can Opener & Basic Tools", "quantity": "1 set", "remarks": "Essential kitchen tools", "cost": "500-1000", "priority": "Low"}
+            ],
+            "Personal Care": [
+                {"item": "Toothbrush & Toothpaste", "quantity": "2-3", "remarks": "Travel and regular size", "cost": "300-600", "priority": "High"},
+                {"item": "Shampoo & Conditioner", "quantity": "2 bottles", "remarks": "Suitable for European water", "cost": "800-1500", "priority": "Medium"},
+                {"item": "Body Wash/Soap", "quantity": "3-4", "remarks": "Moisturizing for dry climate", "cost": "600-1200", "priority": "Medium"},
+                {"item": "Face Wash & Moisturizer", "quantity": "2 each", "remarks": "For climate change adaptation", "cost": "1000-2000", "priority": "Medium"},
+                {"item": "Sunscreen", "quantity": "2 tubes", "remarks": "SPF 30+ for all seasons", "cost": "800-1500", "priority": "Medium"},
+                {"item": "Deodorant/Perfume", "quantity": "2-3", "remarks": "Long-lasting varieties", "cost": "1000-2000", "priority": "Medium"},
+                {"item": "Hair Oil", "quantity": "2 bottles", "remarks": "Coconut or preferred oil", "cost": "400-800", "priority": "Medium"},
+                {"item": "Nail Clippers & Grooming Kit", "quantity": "1 set", "remarks": "Complete grooming tools", "cost": "500-1000", "priority": "Low"},
+                {"item": "Towels", "quantity": "3-4", "remarks": "Quick-dry varieties", "cost": "1000-2000", "priority": "Medium"},
+                {"item": "Feminine Hygiene Products", "quantity": "6 months supply", "remarks": "Preferred brands may not be available", "cost": "1000-2000", "priority": "High"}
+            ],
+            "Groceries & Food": [
+                {"item": "Basmati Rice", "quantity": "2-3 kg", "remarks": "Good quality, vacuum packed", "cost": "600-1200", "priority": "High"},
+                {"item": "Dal/Lentils Variety Pack", "quantity": "1-2 kg", "remarks": "Toor, moong, chana dal", "cost": "500-1000", "priority": "High"},
+                {"item": "Spices (Garam Masala, Turmeric, etc.)", "quantity": "500g total", "remarks": "Essential Indian spices", "cost": "800-1500", "priority": "High"},
+                {"item": "Tea (Chai) & Coffee", "quantity": "500g each", "remarks": "Preferred Indian brands", "cost": "600-1200", "priority": "Medium"},
+                {"item": "Pickle & Chutneys", "quantity": "2-3 jars", "remarks": "Homemade or commercial", "cost": "500-1000", "priority": "Medium"},
+                {"item": "Papad & Dried Snacks", "quantity": "500g", "remarks": "Easy to carry and store", "cost": "300-600", "priority": "Low"},
+                {"item": "Ghee", "quantity": "500ml", "remarks": "Pure cow ghee", "cost": "400-800", "priority": "Medium"},
+                {"item": "Atta (Wheat Flour)", "quantity": "1-2 kg", "remarks": "For making rotis", "cost": "200-400", "priority": "Medium"},
+                {"item": "Instant Food Items", "quantity": "10-15 packets", "remarks": "Maggi, ready-to-eat meals", "cost": "800-1500", "priority": "Low"},
+                {"item": "Dry Fruits & Nuts", "quantity": "500g", "remarks": "Almonds, dates, raisins", "cost": "1500-3000", "priority": "Low"}
+            ],
+            "Documents": [
+                {"item": "Passport", "quantity": "1", "remarks": "Valid for 6+ months", "cost": "3500", "priority": "High"},
+                {"item": "Student Visa", "quantity": "1", "remarks": "Germany student visa", "cost": "7500", "priority": "High"},
+                {"item": "Admission Letter", "quantity": "Original + 3 copies", "remarks": "University admission letter", "cost": "0", "priority": "High"},
+                {"item": "Academic Transcripts", "quantity": "Original + 5 copies", "remarks": "All previous education", "cost": "500", "priority": "High"},
+                {"item": "Degree Certificates", "quantity": "Original + 5 copies", "remarks": "Attested copies", "cost": "1000", "priority": "High"},
+                {"item": "Medical Certificates", "quantity": "Original + 2 copies", "remarks": "Health checkup, vaccinations", "cost": "2000", "priority": "High"},
+                {"item": "Financial Documents", "quantity": "Original + 3 copies", "remarks": "Bank statements, scholarship letters", "cost": "200", "priority": "High"},
+                {"item": "Insurance Documents", "quantity": "Original + 2 copies", "remarks": "Health and travel insurance", "cost": "15000", "priority": "High"},
+                {"item": "Photographs", "quantity": "20", "remarks": "Passport size, recent", "cost": "200", "priority": "Medium"},
+                {"item": "Character Certificate", "quantity": "Original + 2 copies", "remarks": "Police verification", "cost": "500", "priority": "Medium"},
+                {"item": "Birth Certificate", "quantity": "Original + 2 copies", "remarks": "Attested copy", "cost": "100", "priority": "Low"},
+                {"item": "Driving License", "quantity": "Original + 2 copies", "remarks": "International driving permit", "cost": "1000", "priority": "Low"}
+            ],
+            "Electronics": [
+                {"item": "Laptop", "quantity": "1", "remarks": "Study-appropriate specs", "cost": "40000-80000", "priority": "High"},
+                {"item": "Smartphone", "quantity": "1", "remarks": "Unlocked, compatible with German networks", "cost": "15000-40000", "priority": "High"},
+                {"item": "Universal Power Adapter", "quantity": "2", "remarks": "Type C & F for Germany", "cost": "1000-2000", "priority": "High"},
+                {"item": "Power Bank", "quantity": "1-2", "remarks": "High capacity (10000mAh+)", "cost": "1500-3000", "priority": "Medium"},
+                {"item": "Laptop Charger (Extra)", "quantity": "1", "remarks": "Backup charger", "cost": "2000-4000", "priority": "Medium"},
+                {"item": "Phone Charger & Cables", "quantity": "2 sets", "remarks": "USB-C, Lightning as needed", "cost": "800-1500", "priority": "Medium"},
+                {"item": "Headphones/Earphones", "quantity": "1 pair", "remarks": "Good quality for online classes", "cost": "1500-5000", "priority": "Medium"},
+                {"item": "External Hard Drive", "quantity": "1", "remarks": "1TB for backups", "cost": "3000-5000", "priority": "Medium"},
+                {"item": "Webcam (if laptop doesn't have good one)", "quantity": "1", "remarks": "For video calls and classes", "cost": "2000-4000", "priority": "Low"},
+                {"item": "Extension Cord", "quantity": "1", "remarks": "Multi-socket with surge protection", "cost": "800-1500", "priority": "Low"}
+            ],
+            "Medicines": [
+                {"item": "Fever & Pain Relief", "quantity": "2 strips", "remarks": "Paracetamol, Ibuprofen", "cost": "200-400", "priority": "High"},
+                {"item": "Cold & Cough Medicine", "quantity": "2 bottles", "remarks": "Syrup and tablets", "cost": "300-600", "priority": "High"},
+                {"item": "Stomach Upset Medicine", "quantity": "2 strips", "remarks": "Antacid, ORS packets", "cost": "200-400", "priority": "High"},
+                {"item": "Antiseptic Cream", "quantity": "2 tubes", "remarks": "For cuts and wounds", "cost": "200-400", "priority": "Medium"},
+                {"item": "Band-aids & Gauze", "quantity": "1 pack each", "remarks": "First aid essentials", "cost": "200-400", "priority": "Medium"},
+                {"item": "Prescription Medicines", "quantity": "3 months supply", "remarks": "Any ongoing medications", "cost": "1000-5000", "priority": "High"},
+                {"item": "Vitamin Supplements", "quantity": "2 bottles", "remarks": "Vitamin D, B12 for European climate", "cost": "800-1500", "priority": "Medium"},
+                {"item": "Eye Drops", "quantity": "2 bottles", "remarks": "For dry eyes from screen time", "cost": "300-600", "priority": "Low"},
+                {"item": "Thermometer", "quantity": "1", "remarks": "Digital thermometer", "cost": "300-600", "priority": "Medium"},
+                {"item": "Hot Water Bag", "quantity": "1", "remarks": "For winter aches", "cost": "300-600", "priority": "Low"}
+            ],
+            "Banking & Cards": [
+                {"item": "International Debit Card", "quantity": "1", "remarks": "Forex-enabled, low charges", "cost": "500", "priority": "High"},
+                {"item": "Credit Card", "quantity": "1", "remarks": "International usage enabled", "cost": "500", "priority": "High"},
+                {"item": "Forex Card", "quantity": "1", "remarks": "Pre-loaded EUR card", "cost": "200", "priority": "Medium"},
+                {"item": "Cash (EUR)", "quantity": "500-1000 EUR", "remarks": "For initial expenses", "cost": "45000-90000", "priority": "High"},
+                {"item": "Cash (INR)", "quantity": "10000-20000", "remarks": "For last-minute expenses in India", "cost": "10000-20000", "priority": "Medium"},
+                {"item": "Bank Account Documents", "quantity": "1 set", "remarks": "For opening German bank account", "cost": "0", "priority": "High"},
+                {"item": "Financial Backup Plan", "quantity": "1", "remarks": "Emergency fund access method", "cost": "0", "priority": "Medium"}
+            ],
+            "Stationery & Academic": [
+                {"item": "Notebooks", "quantity": "5-10", "remarks": "A4 size, ruled and plain", "cost": "500-1000", "priority": "Medium"},
+                {"item": "Pens & Pencils", "quantity": "10 each", "remarks": "Blue, black pens + mechanical pencils", "cost": "300-600", "priority": "Medium"},
+                {"item": "Highlighters", "quantity": "5", "remarks": "Different colors", "cost": "200-400", "priority": "Low"},
+                {"item": "Stapler & Staples", "quantity": "1 set", "remarks": "For document organization", "cost": "200-400", "priority": "Low"},
+                {"item": "Folders & Files", "quantity": "10", "remarks": "For document storage", "cost": "300-600", "priority": "Medium"},
+                {"item": "Calculator", "quantity": "1", "remarks": "Scientific calculator", "cost": "500-1500", "priority": "Medium"},
+                {"item": "Ruler & Geometry Set", "quantity": "1 set", "remarks": "For technical drawings", "cost": "200-400", "priority": "Low"},
+                {"item": "Sticky Notes", "quantity": "5 packs", "remarks": "For study organization", "cost": "200-400", "priority": "Low"},
+                {"item": "Backpack", "quantity": "1", "remarks": "Laptop compartment, weather-resistant", "cost": "1500-3000", "priority": "High"},
+                {"item": "Study Lamp", "quantity": "1", "remarks": "LED desk lamp", "cost": "800-1500", "priority": "Low"}
+            ],
+            "Miscellaneous": [
+                {"item": "Umbrella", "quantity": "1", "remarks": "Compact, sturdy for frequent rain", "cost": "500-1000", "priority": "Medium"},
+                {"item": "Travel Pillow", "quantity": "1", "remarks": "For comfortable journey", "cost": "800-1500", "priority": "Low"},
+                {"item": "Luggage Locks", "quantity": "2-3", "remarks": "TSA-approved locks", "cost": "600-1200", "priority": "Medium"},
+                {"item": "Sewing Kit", "quantity": "1", "remarks": "Basic repairs", "cost": "200-400", "priority": "Low"},
+                {"item": "Indian Flag Pin", "quantity": "2", "remarks": "Cultural representation", "cost": "100-200", "priority": "Low"},
+                {"item": "Emergency Contact List", "quantity": "3 copies", "remarks": "Laminated, important numbers", "cost": "100", "priority": "High"},
+                {"item": "Mattress Protector", "quantity": "1", "remarks": "For dorm bed", "cost": "800-1500", "priority": "Low"},
+                {"item": "Alarm Clock", "quantity": "1", "remarks": "Backup to phone", "cost": "500-1000", "priority": "Low"},
+                {"item": "Padlock", "quantity": "2", "remarks": "For lockers and storage", "cost": "400-800", "priority": "Medium"},
+                {"item": "European SIM Card", "quantity": "1", "remarks": "Pre-ordered or upon arrival", "cost": "1000-2000", "priority": "High"}
+            ]
+        };
+
+        let currentFilter = {
+            priority: ['high', 'medium', 'low'],
+            status: 'all',
+            search: ''
+        };
+
+        let appConfig = {};
+        let userData = {};
+        let sharedChecklistId = null;
+        let isSharedMode = false;
+
+        async function initializeChecklist() {
+            await loadAppConfig();
+            loadCustomItems();
+            checkForSharedChecklist();
+            checkUserSetup();
+            showCacheWarnings();
+            renderCategories();
+            attachEventListeners();
+            updateProgress();
+            displayTips();
+        }
+
+        function checkForSharedChecklist() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const shareId = urlParams.get('share');
+            
+            if (shareId) {
+                sharedChecklistId = shareId;
+                isSharedMode = true;
+                document.getElementById('sync-btn').style.display = 'inline-block';
+                loadSharedChecklist(shareId);
+            }
+        }
+
+        async function loadSharedChecklist(shareId) {
+            try {
+                const response = await fetch(`/api/share?shareId=${shareId}`);
+                if (response.ok) {
+                    const sharedData = await response.json();
+                    
+                    // Load shared progress into localStorage
+                    Object.entries(sharedData.progress).forEach(([key, value]) => {
+                        localStorage.setItem(key, value);
+                    });
+                    
+                    // Update UI to show this is a shared checklist
+                    const header = document.querySelector('.header');
+                    const sharedInfo = document.createElement('div');
+                    const sharedDiv = document.createElement('div');
+                    sharedDiv.style.cssText = 'background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 0.9em;';
+                    
+                    const ownerText = document.createElement('div');
+                    ownerText.innerHTML = `👥 <strong>Shared Checklist:</strong> ${escapeHtml(sharedData.ownerName)}'s checklist`;
+                    
+                    const collaboratorsText = document.createElement('small');
+                    collaboratorsText.textContent = `Collaborators: ${sharedData.collaborators.map(name => escapeHtml(name)).join(', ')}`;
+                    
+                    const updateText = document.createElement('small');
+                    updateText.textContent = `Last updated: ${new Date(sharedData.lastUpdated).toLocaleString()}`;
+                    
+                    sharedDiv.appendChild(ownerText);
+                    sharedDiv.appendChild(document.createElement('br'));
+                    sharedDiv.appendChild(collaboratorsText);
+                    sharedDiv.appendChild(document.createElement('br'));
+                    sharedDiv.appendChild(updateText);
+                    sharedInfo.appendChild(sharedDiv);
+                    header.appendChild(sharedInfo);
+                    
+                    // Re-render with loaded data
+                    renderCategories();
+                    updateProgress();
+                }
+            } catch (error) {
+                console.error('Failed to load shared checklist:', error);
+                alert('Failed to load shared checklist. Using local data.');
+            }
+        }
+
+        function checkUserSetup() {
+            const firstName = localStorage.getItem('user-first-name');
+            const lastName = localStorage.getItem('user-last-name');
+            
+            if (!firstName || !lastName) {
+                document.getElementById('user-setup').classList.remove('hidden');
+            } else {
+                userData = { firstName, lastName };
+                updatePersonalizedContent();
+            }
+        }
+
+        function saveUserInfo() {
+            const firstName = document.getElementById('first-name').value.trim();
+            const lastName = document.getElementById('last-name').value.trim();
+            
+            if (!firstName || !lastName) {
+                alert('Please enter both first and last name.');
+                return;
+            }
+            
+            localStorage.setItem('user-first-name', firstName);
+            localStorage.setItem('user-last-name', lastName);
+            userData = { firstName, lastName };
+            
+            document.getElementById('user-setup').classList.add('hidden');
+            updatePersonalizedContent();
+        }
+
+        function updatePersonalizedContent() {
+            const { firstName, lastName } = userData;
+            
+            // Sanitize user input to prevent XSS
+            const safeFirstName = escapeHtml(firstName);
+            const safeLastName = escapeHtml(lastName);
+            
+            // Update main title and subtitle
+            document.getElementById('main-title').textContent = `🎓 ${firstName}'s Study Abroad Checklist`;
+            document.getElementById('main-subtitle').textContent = `${firstName} ${lastName} - India to Germany Journey`;
+            
+            // Show welcome message
+            const welcomeMsg = document.getElementById('welcome-message');
+            welcomeMsg.textContent = `Welcome back, ${firstName}! Let's get you ready for Germany. 🇩🇪`;
+            welcomeMsg.classList.remove('hidden');
+            
+            // Update page title (safe as it's not rendered in DOM)
+            document.title = `${firstName}'s Study Abroad Checklist - India to Germany`;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function loadAppConfig() {
+            try {
+                const response = await fetch('/api/config');
+                if (response.ok) {
+                    appConfig = await response.json();
+                    console.log('App config loaded:', appConfig.version);
+                } else {
+                    console.warn('Failed to load app config, using defaults');
+                }
+            } catch (error) {
+                console.warn('Failed to fetch app config:', error);
+                // Fallback config
+                appConfig = {
+                    version: '1.0.0',
+                    features: { progressTracking: true },
+                    tips: ["Don't clear your browser cache to keep your progress!"]
+                };
+            }
+        }
+
+        function showCacheWarnings() {
+            const cacheWarning = document.getElementById('cache-warning');
+            if (appConfig.tips && appConfig.tips.length > 0) {
+                cacheWarning.innerHTML = `⚠️ <strong>Important:</strong> ${appConfig.tips[0]}`;
+            }
+            
+            // Check if user has existing data
+            const hasExistingData = Object.keys(localStorage).some(key => 
+                key.startsWith('packed-') || key.startsWith('purchased-')
+            );
+            
+            if (hasExistingData) {
+                const existingDataWarning = document.createElement('div');
+                existingDataWarning.innerHTML = `
+                    <div style="background: rgba(40, 167, 69, 0.1); padding: 10px; border-radius: 5px; margin-top: 10px; color: #155724;">
+                        ✅ <strong>Great!</strong> Your previous progress has been restored from browser cache.
+                    </div>
+                `;
+                cacheWarning.appendChild(existingDataWarning);
+            }
+        }
+
+        function displayTips() {
+            if (!appConfig.tips || appConfig.tips.length <= 1) return;
+            
+            const controlsDiv = document.querySelector('.controls');
+            const tipsDiv = document.createElement('div');
+            tipsDiv.innerHTML = `
+                <div style="background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 5px; padding: 15px; margin-top: 15px;">
+                    <h4 style="margin: 0 0 10px 0; color: #0056b3;">💡 Helpful Tips:</h4>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        ${appConfig.tips.slice(1).map(tip => `<li style="margin-bottom: 5px;">${tip}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            controlsDiv.appendChild(tipsDiv);
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('categories-container');
+            container.innerHTML = '';
+
+            Object.entries(checklistData).forEach(([categoryName, items]) => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+                categoryDiv.innerHTML = `
+                    <div class="category-header" onclick="toggleCategory('${categoryName}')">
+                        <h2>${categoryName}</h2>
+                        <span class="category-toggle" id="toggle-${categoryName}">−</span>
+                    </div>
+                    <div class="category-content" id="content-${categoryName}">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Quantity</th>
+                                        <th>Remarks</th>
+                                        <th>Cost (₹)</th>
+                                        <th>Priority</th>
+                                        <th>Packed</th>
+                                        <th>Purchased</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-${categoryName}">
+                                    ${renderCategoryItems(categoryName, items)}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(categoryDiv);
+            });
+        }
+
+        function renderCategoryItems(categoryName, items) {
+            return items.map((item, index) => {
+                const itemId = `${categoryName}-${index}`;
+                const packed = localStorage.getItem(`packed-${itemId}`) === 'true';
+                const purchased = localStorage.getItem(`purchased-${itemId}`) === 'true';
+                
+                if (!shouldShowItem(item, packed)) {
+                    return '';
+                }
+
+                return `
+                    <tr class="${packed && purchased ? 'completed-row' : ''} checklist-item" id="row-${itemId}">
+                        <td>
+                            ${item.item}
+                            ${item.isCustom ? '<span class="custom-item-badge">CUSTOM</span>' : ''}
+                        </td>
+                        <td>${item.quantity}</td>
+                        <td>${item.remarks}</td>
+                        <td class="cost">₹${item.cost}</td>
+                        <td class="priority-${item.priority.toLowerCase()}">${item.priority}</td>
+                        <td>
+                            <input type="checkbox" class="checkbox" 
+                                   ${packed ? 'checked' : ''} 
+                                   onchange="updateStatus('packed', '${itemId}', this.checked)">
+                        </td>
+                        <td>
+                            <input type="checkbox" class="checkbox" 
+                                   ${purchased ? 'checked' : ''} 
+                                   onchange="updateStatus('purchased', '${itemId}', this.checked)">
+                        </td>
+                        <td>
+                            <div class="item-actions">
+                                <button class="btn-edit" onclick="showEditItemModal('${itemId}', '${categoryName}', ${index})" title="Edit item">
+                                    ✏️
+                                </button>
+                                <button class="btn-delete" onclick="deleteItem('${categoryName}', ${index})" title="Delete item">
+                                    🗑️
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function shouldShowItem(item, packed) {
+            // Priority filter
+            if (!currentFilter.priority.includes(item.priority.toLowerCase())) {
+                return false;
+            }
+
+            // Status filter
+            if (currentFilter.status === 'packed' && !packed) {
+                return false;
+            }
+            if (currentFilter.status === 'unpacked' && packed) {
+                return false;
+            }
+
+            // Search filter
+            if (currentFilter.search && !item.item.toLowerCase().includes(currentFilter.search.toLowerCase())) {
+                return false;
+            }
+
+            return true;
+        }
+
+        function toggleCategory(categoryName) {
+            const content = document.getElementById(`content-${categoryName}`);
+            const toggle = document.getElementById(`toggle-${categoryName}`);
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                toggle.textContent = '−';
+            } else {
+                content.style.display = 'none';
+                toggle.textContent = '+';
+            }
+        }
+
+
+        function updateProgress() {
+            let totalItems = 0;
+            let packedItems = 0;
+
+            Object.entries(checklistData).forEach(([categoryName, items]) => {
+                items.forEach((item, index) => {
+                    totalItems++;
+                    const itemId = `${categoryName}-${index}`;
+                    if (localStorage.getItem(`packed-${itemId}`) === 'true') {
+                        packedItems++;
+                    }
+                });
+            });
+
+            const percentage = totalItems > 0 ? Math.round((packedItems / totalItems) * 100) : 0;
+            
+            document.getElementById('progress-fill').style.width = `${percentage}%`;
+            document.getElementById('progress-text').textContent = 
+                `${packedItems} of ${totalItems} items packed (${percentage}%)`;
+        }
+
+        function attachEventListeners() {
+            // Priority filters
+            ['high', 'medium', 'low'].forEach(priority => {
+                document.getElementById(`filter-${priority}`).addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        currentFilter.priority.push(priority);
+                    } else {
+                        currentFilter.priority = currentFilter.priority.filter(p => p !== priority);
+                    }
+                    applyFilters();
+                });
+            });
+
+            // Status filters
+            document.getElementById('filter-packed').addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    currentFilter.status = 'packed';
+                    document.getElementById('filter-unpacked').checked = false;
+                } else {
+                    currentFilter.status = 'all';
+                }
+                applyFilters();
+            });
+
+            document.getElementById('filter-unpacked').addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    currentFilter.status = 'unpacked';
+                    document.getElementById('filter-packed').checked = false;
+                } else {
+                    currentFilter.status = 'all';
+                }
+                applyFilters();
+            });
+
+            // Search
+            document.getElementById('search-box').addEventListener('input', (e) => {
+                currentFilter.search = e.target.value;
+                applyFilters();
+            });
+        }
+
+        function applyFilters() {
+            renderCategories();
+            updateProgress();
+        }
+
+        function exportToExcel() {
+            const { firstName, lastName } = userData;
+            const userName = firstName && lastName ? `${firstName} ${lastName}` : 'Student';
+            const currentDate = new Date().toLocaleDateString();
+            
+            // Create header information
+            let csvContent = `Student Package Checklist - India to Germany\n`;
+            csvContent += `Student Name: ${userName}\n`;
+            csvContent += `Export Date: ${currentDate}\n`;
+            csvContent += `Progress: ${document.getElementById('progress-text').textContent}\n\n`;
+            
+            // Add CSV headers
+            csvContent += 'Category,Item,Quantity,Remarks,Cost (INR),Priority,Packed,Purchased,Status\n';
+            
+            // Process each category
+            Object.entries(checklistData).forEach(([categoryName, items]) => {
+                items.forEach((item, index) => {
+                    const itemId = `${categoryName}-${index}`;
+                    const packed = localStorage.getItem(`packed-${itemId}`) === 'true';
+                    const purchased = localStorage.getItem(`purchased-${itemId}`) === 'true';
+                    
+                    let status = 'Pending';
+                    if (packed && purchased) status = 'Complete';
+                    else if (packed) status = 'Packed Only';
+                    else if (purchased) status = 'Purchased Only';
+                    
+                    // Escape commas and quotes in data
+                    const escapedItem = `"${item.item.replace(/"/g, '""')}"`;
+                    const escapedQuantity = `"${item.quantity.replace(/"/g, '""')}"`;
+                    const escapedRemarks = `"${item.remarks.replace(/"/g, '""')}"`;
+                    const escapedCost = `"${item.cost}"`;
+                    
+                    csvContent += `${categoryName},${escapedItem},${escapedQuantity},${escapedRemarks},${escapedCost},${item.priority},${packed ? 'Yes' : 'No'},${purchased ? 'Yes' : 'No'},${status}\n`;
+                });
+            });
+            
+            // Add summary at the end
+            let totalItems = 0;
+            let packedItems = 0;
+            let purchasedItems = 0;
+            let completedItems = 0;
+            
+            Object.entries(checklistData).forEach(([categoryName, items]) => {
+                items.forEach((item, index) => {
+                    totalItems++;
+                    const itemId = `${categoryName}-${index}`;
+                    const packed = localStorage.getItem(`packed-${itemId}`) === 'true';
+                    const purchased = localStorage.getItem(`purchased-${itemId}`) === 'true';
+                    
+                    if (packed) packedItems++;
+                    if (purchased) purchasedItems++;
+                    if (packed && purchased) completedItems++;
+                });
+            });
+            
+            csvContent += `\nSUMMARY\n`;
+            csvContent += `Total Items,${totalItems}\n`;
+            csvContent += `Items Packed,${packedItems}\n`;
+            csvContent += `Items Purchased,${purchasedItems}\n`;
+            csvContent += `Items Completed,${completedItems}\n`;
+            csvContent += `Overall Progress,${Math.round((packedItems / totalItems) * 100)}%\n`;
+            
+            // Create and download the file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `${userName.replace(/\s+/g, '_')}_Germany_Checklist_${currentDate.replace(/\//g, '-')}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Show success message
+                const originalText = event.target.innerHTML;
+                event.target.innerHTML = '✅ Downloaded!';
+                event.target.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+                
+                setTimeout(() => {
+                    event.target.innerHTML = originalText;
+                    event.target.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+                }, 2000);
+            }
+        }
+
+        async function shareChecklist() {
+            const { firstName, lastName } = userData;
+            if (!firstName || !lastName) {
+                alert('Please set up your name first before sharing.');
+                return;
+            }
+
+            const userName = `${firstName} ${lastName}`;
+            
+            // Collect current progress
+            const userProgress = {};
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('packed-') || key.startsWith('purchased-')) {
+                    userProgress[key] = localStorage.getItem(key);
+                }
+            });
+
+            try {
+                const response = await fetch('/api/share', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        userName,
+                        userProgress
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    // Show share URL to user
+                    const shareUrl = `${window.location.origin}${window.location.pathname}?share=${result.shareId}`;
+                    
+                    // Copy to clipboard
+                    try {
+                        await navigator.clipboard.writeText(shareUrl);
+                        alert(`✅ Checklist shared successfully!\n\nShare URL copied to clipboard:\n${shareUrl}\n\nSend this link to family/friends to collaborate on your checklist.`);
+                    } catch (err) {
+                        alert(`✅ Checklist shared successfully!\n\nShare this URL with family/friends:\n${shareUrl}`);
+                    }
+                    
+                    // Update current session to shared mode
+                    sharedChecklistId = result.shareId;
+                    isSharedMode = true;
+                    document.getElementById('sync-btn').style.display = 'inline-block';
+                    
+                } else {
+                    throw new Error('Failed to create shared checklist');
+                }
+            } catch (error) {
+                console.error('Share error:', error);
+                alert('❌ Failed to share checklist. Please try again.');
+            }
+        }
+
+        async function syncWithShared() {
+            if (!sharedChecklistId || !userData.firstName || !userData.lastName) {
+                alert('No shared checklist to sync with.');
+                return;
+            }
+
+            const userName = `${userData.firstName} ${userData.lastName}`;
+            
+            // Collect current progress
+            const userProgress = {};
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('packed-') || key.startsWith('purchased-')) {
+                    userProgress[key] = localStorage.getItem(key);
+                }
+            });
+
+            try {
+                // Update shared checklist with current progress
+                const response = await fetch('/api/share', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        shareId: sharedChecklistId,
+                        userName,
+                        userProgress
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    // Load updated progress back to localStorage
+                    Object.entries(result.checklist.progress).forEach(([key, value]) => {
+                        localStorage.setItem(key, value);
+                    });
+                    
+                    // Re-render with synced data
+                    renderCategories();
+                    updateProgress();
+                    
+                    // Show success message
+                    const originalText = event.target.innerHTML;
+                    event.target.innerHTML = '✅ Synced!';
+                    
+                    setTimeout(() => {
+                        event.target.innerHTML = originalText;
+                    }, 2000);
+                    
+                } else {
+                    throw new Error('Failed to sync with shared checklist');
+                }
+            } catch (error) {
+                console.error('Sync error:', error);
+                alert('❌ Failed to sync. Please try again.');
+            }
+        }
+
+        // Auto-sync when user makes changes in shared mode
+        function updateStatus(type, itemId, checked) {
+            localStorage.setItem(`${type}-${itemId}`, checked);
+            
+            const row = document.getElementById(`row-${itemId}`);
+            const packed = localStorage.getItem(`packed-${itemId}`) === 'true';
+            const purchased = localStorage.getItem(`purchased-${itemId}`) === 'true';
+            
+            if (packed && purchased) {
+                row.classList.add('completed-row');
+            } else {
+                row.classList.remove('completed-row');
+            }
+            
+            updateProgress();
+            
+            // Auto-sync in shared mode (debounced)
+            if (isSharedMode && sharedChecklistId) {
+                clearTimeout(window.autoSyncTimeout);
+                window.autoSyncTimeout = setTimeout(() => {
+                    syncWithShared();
+                }, 2000); // Sync 2 seconds after last change
+            }
+        }
+
+        // Custom Item Management Functions
+        let customItems = JSON.parse(localStorage.getItem('customItems') || '{}');
+        let editingItemId = null;
+
+        function showAddItemModal() {
+            editingItemId = null;
+            document.getElementById('modal-title').textContent = 'Add Custom Item';
+            document.getElementById('save-btn').textContent = 'Add Item';
+            document.getElementById('item-form').reset();
+            document.getElementById('edit-item-id').value = '';
+            document.getElementById('item-modal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function showEditItemModal(itemId, categoryName, itemIndex) {
+            const item = checklistData[categoryName][itemIndex];
+            editingItemId = itemId;
+            
+            document.getElementById('modal-title').textContent = 'Edit Item';
+            document.getElementById('save-btn').textContent = 'Update Item';
+            document.getElementById('edit-item-id').value = itemId;
+            
+            // Check if it's a custom item
+            if (customItems[categoryName] && customItems[categoryName][itemIndex]) {
+                const customItem = customItems[categoryName][itemIndex];
+                document.getElementById('item-name').value = customItem.item;
+                document.getElementById('item-quantity').value = customItem.quantity || '1';
+                document.getElementById('item-priority').value = customItem.priority || 'Medium';
+                document.getElementById('item-cost').value = customItem.cost || '';
+                document.getElementById('item-category').value = categoryName;
+                document.getElementById('item-remarks').value = customItem.remarks || '';
+            } else {
+                // Predefined item - populate what we can
+                document.getElementById('item-name').value = item.item;
+                document.getElementById('item-quantity').value = item.quantity || '1';
+                document.getElementById('item-priority').value = item.priority || 'Medium';
+                document.getElementById('item-cost').value = item.cost || '';
+                document.getElementById('item-category').value = categoryName;
+                document.getElementById('item-remarks').value = item.remarks || '';
+            }
+            
+            document.getElementById('item-modal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeItemModal() {
+            document.getElementById('item-modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            editingItemId = null;
+        }
+
+        function saveItem(event) {
+            event.preventDefault();
+            
+            const itemData = {
+                item: document.getElementById('item-name').value.trim(),
+                quantity: document.getElementById('item-quantity').value || '1',
+                priority: document.getElementById('item-priority').value,
+                cost: document.getElementById('item-cost').value || '0',
+                remarks: document.getElementById('item-remarks').value.trim(),
+                isCustom: true
+            };
+            
+            const categoryName = document.getElementById('item-category').value;
+            
+            if (!itemData.item) {
+                alert('Please enter an item name');
+                return;
+            }
+            
+            if (editingItemId) {
+                // Editing existing item
+                updateExistingItem(categoryName, itemData);
+            } else {
+                // Adding new item
+                addNewItem(categoryName, itemData);
+            }
+            
+            closeItemModal();
+            renderCategories();
+            updateProgress();
+        }
+
+        function addNewItem(categoryName, itemData) {
+            // Initialize category in custom items if it doesn't exist
+            if (!customItems[categoryName]) {
+                customItems[categoryName] = [];
+            }
+            
+            // Add to checklistData for immediate display
+            if (!checklistData[categoryName]) {
+                checklistData[categoryName] = [];
+            }
+            
+            checklistData[categoryName].push(itemData);
+            customItems[categoryName].push(itemData);
+            
+            // Save to localStorage
+            localStorage.setItem('customItems', JSON.stringify(customItems));
+        }
+
+        function updateExistingItem(categoryName, itemData) {
+            // Find the item in the checklist
+            const [category, index] = editingItemId.split('-').slice(0, 2);
+            const itemIndex = parseInt(index);
+            
+            if (checklistData[category] && checklistData[category][itemIndex]) {
+                // Update the item
+                Object.assign(checklistData[category][itemIndex], itemData);
+                
+                // Update in custom items as well
+                if (!customItems[category]) {
+                    customItems[category] = [];
+                }
+                customItems[category][itemIndex] = itemData;
+                
+                localStorage.setItem('customItems', JSON.stringify(customItems));
+            }
+        }
+
+        function deleteItem(categoryName, itemIndex) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                // Remove from checklistData
+                checklistData[categoryName].splice(itemIndex, 1);
+                
+                // Remove from customItems if it exists
+                if (customItems[categoryName] && customItems[categoryName][itemIndex]) {
+                    customItems[categoryName].splice(itemIndex, 1);
+                    localStorage.setItem('customItems', JSON.stringify(customItems));
+                }
+                
+                // Clean up localStorage for this item's status
+                const itemId = `${categoryName}-${itemIndex}`;
+                localStorage.removeItem(`packed-${itemId}`);
+                localStorage.removeItem(`purchased-${itemId}`);
+                
+                renderCategories();
+                updateProgress();
+            }
+        }
+
+        function loadCustomItems() {
+            // Merge custom items back into checklistData
+            Object.keys(customItems).forEach(categoryName => {
+                if (customItems[categoryName] && Array.isArray(customItems[categoryName])) {
+                    customItems[categoryName].forEach(customItem => {
+                        if (!checklistData[categoryName]) {
+                            checklistData[categoryName] = [];
+                        }
+                        
+                        // Check if item already exists to avoid duplicates
+                        const exists = checklistData[categoryName].some(item => 
+                            item.item === customItem.item && item.isCustom
+                        );
+                        
+                        if (!exists) {
+                            checklistData[categoryName].push(customItem);
+                        }
+                    });
+                }
+            });
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            const modal = document.getElementById('item-modal');
+            if (event.target === modal) {
+                closeItemModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeItemModal();
+            }
+        });
+
+        // Initialize the checklist when page loads
+        document.addEventListener('DOMContentLoaded', initializeChecklist);
+    </script>
+</body>
+</html>
