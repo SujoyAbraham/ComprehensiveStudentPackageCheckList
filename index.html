@@ -978,10 +978,21 @@
                 
                 updatePersonalizedContent();
                 
-                // Show welcome message
+                // Ensure main content is visible and rendered
                 setTimeout(() => {
+                    console.log('Rendering main content...');
+                    
+                    // Force reload custom items and render everything
+                    loadCustomItems();
+                    renderCategories();
+                    updateProgress();
+                    displayTips();
+                    
+                    console.log('Main content rendered');
+                    
+                    // Show welcome message
                     alert(`Welcome ${firstName}! Your personal checklist is ready. 🎉`);
-                }, 500);
+                }, 200);
                 
             } catch (error) {
                 console.error('Error in saveUserInfo:', error);
@@ -1074,7 +1085,13 @@
         }
 
         function renderCategories() {
+            console.log('renderCategories called');
             const container = document.getElementById('categories-container');
+            if (!container) {
+                console.error('categories-container not found!');
+                return;
+            }
+            console.log('Found categories container, rendering content...');
             container.innerHTML = '';
 
             Object.entries(checklistData).forEach(([categoryName, items]) => {
