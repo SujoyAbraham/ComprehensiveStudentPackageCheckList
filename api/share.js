@@ -53,8 +53,12 @@ export default async function handler(req, res) {
       }
 
       try {
-        // Decode the base64url data
-        const decodedData = JSON.parse(Buffer.from(encodedData, 'base64url').toString());
+        console.log('Received encoded data:', encodedData.substring(0, 50) + '...');
+        // URL decode first, then base64url decode
+        const urlDecodedData = decodeURIComponent(encodedData);
+        console.log('URL decoded data:', urlDecodedData.substring(0, 50) + '...');
+        const decodedData = JSON.parse(Buffer.from(urlDecodedData, 'base64url').toString());
+        console.log('Successfully decoded share data for owner:', decodedData.owner);
         
         // Validate the data structure
         if (!decodedData.owner || !decodedData.createdAt) {

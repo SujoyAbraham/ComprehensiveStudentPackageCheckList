@@ -823,9 +823,12 @@
 
         async function loadSharedChecklist(encodedData) {
             try {
-                const response = await fetch(`/api/share?share=${encodedData}`);
+                console.log('Loading shared checklist with data:', encodedData.substring(0, 50) + '...');
+                const response = await fetch(`/api/share?share=${encodeURIComponent(encodedData)}`);
+                console.log('Share API response status:', response.status);
                 if (response.ok) {
                     const result = await response.json();
+                    console.log('Share API result:', result);
                     const sharedData = result.data;
                     
                     // Load shared progress into localStorage
@@ -888,7 +891,7 @@
                 }
             } catch (error) {
                 console.error('Failed to load shared checklist:', error);
-                alert('❌ Failed to load shared checklist. The share link may be invalid or corrupted.\n\nUsing your local data instead.');
+                alert(`❌ Failed to load shared checklist. The share link may be invalid or corrupted.\n\nError: ${error.message}\n\nUsing your local data instead.`);
             }
         }
 
