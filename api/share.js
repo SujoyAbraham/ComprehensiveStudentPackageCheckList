@@ -1,9 +1,10 @@
-import { get, set } from '@vercel/edge-config';
+// Simple sharing implementation using URL-based data transfer
+// No external storage dependencies - works with Vercel Hobby plan
 
 export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
@@ -13,84 +14,62 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'POST') {
-      // Create a new shared checklist
-      const { userName, userProgress, sharedWith } = req.body;
+      // Create a shareable link with encoded data
+      const { userName, userProgress, customItems } = req.body;
       
-      if (!userName || !userProgress) {
-        return res.status(400).json({ error: 'Missing required fields' });
+      if (!userName) {
+        return res.status(400).json({ error: 'User name is required' });
       }
 
-      // Generate a unique share ID
-      const shareId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      
-      const sharedChecklist = {
-        id: shareId,
-        ownerName: userName,
-        progress: userProgress,
+      // Create shareable data object
+      const shareData = {
+        owner: userName,
+        progress: userProgress || {},
+        customItems: customItems || {},
         createdAt: new Date().toISOString(),
-        lastUpdated: new Date().toISOString(),
-        sharedWith: sharedWith || [],
-        collaborators: [userName] // Owner is always a collaborator
+        version: '2.0.0'
       };
 
-      // Store in Edge Config (limited storage, so we'll use a simple key)
-      await set(`shared-${shareId}`, sharedChecklist);
+      // Encode the data as a URL-safe base64 string
+      const encodedData = Buffer.from(JSON.stringify(shareData)).toString('base64url');
+      
+      // Generate share URL with encoded data
+      const origin = req.headers.origin || req.headers.host || 'localhost:3000';
+      const shareUrl = `${origin.startsWith('http') ? origin : `https://${origin}`}?share=${encodedData}`;
       
       res.status(200).json({ 
         success: true, 
-        shareId,
-        shareUrl: `${req.headers.origin || 'https://your-app.vercel.app'}?share=${shareId}`
+        shareUrl,
+        shareData,
+        message: 'Share link created successfully. Anyone with this link can view and collaborate on your checklist.'
       });
 
     } else if (req.method === 'GET') {
-      // Get shared checklist
-      const { shareId } = req.query;
+      // Decode shared data from URL parameter
+      const { share: encodedData } = req.query;
       
-      if (!shareId) {
-        return res.status(400).json({ error: 'Share ID required' });
+      if (!encodedData) {
+        return res.status(400).json({ error: 'Share data required' });
       }
 
-      const sharedChecklist = await get(`shared-${shareId}`);
-      
-      if (!sharedChecklist) {
-        return res.status(404).json({ error: 'Shared checklist not found' });
+      try {
+        // Decode the base64url data
+        const decodedData = JSON.parse(Buffer.from(encodedData, 'base64url').toString());
+        
+        // Validate the data structure
+        if (!decodedData.owner || !decodedData.createdAt) {
+          return res.status(400).json({ error: 'Invalid share data format' });
+        }
+
+        res.status(200).json({
+          success: true,
+          data: decodedData,
+          message: `Shared checklist from ${decodedData.owner}`
+        });
+
+      } catch (decodeError) {
+        return res.status(400).json({ error: 'Invalid or corrupted share data' });
       }
-
-      res.status(200).json(sharedChecklist);
-
-    } else if (req.method === 'PUT') {
-      // Update shared checklist
-      const { shareId, userName, userProgress } = req.body;
-      
-      if (!shareId || !userName || !userProgress) {
-        return res.status(400).json({ error: 'Missing required fields' });
-      }
-
-      const existingChecklist = await get(`shared-${shareId}`);
-      
-      if (!existingChecklist) {
-        return res.status(404).json({ error: 'Shared checklist not found' });
-      }
-
-      // Merge progress data
-      const updatedProgress = { ...existingChecklist.progress, ...userProgress };
-      
-      // Add user to collaborators if not already there
-      const collaborators = existingChecklist.collaborators.includes(userName) 
-        ? existingChecklist.collaborators 
-        : [...existingChecklist.collaborators, userName];
-
-      const updatedChecklist = {
-        ...existingChecklist,
-        progress: updatedProgress,
-        lastUpdated: new Date().toISOString(),
-        lastUpdatedBy: userName,
-        collaborators
-      };
-
-      await set(`shared-${shareId}`, updatedChecklist);
-      
-      res.status(200).json({ success: true, checklist: updatedChecklist });
 
     } else {
       res.status(405).json({ error: 'Method not allowed' });
@@ -98,6 +77,6 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Share API error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 }

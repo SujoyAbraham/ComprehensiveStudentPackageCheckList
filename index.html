@@ -575,8 +575,8 @@
                 <button onclick="shareChecklist()" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: transform 0.3s;">
                     🔗 Share Checklist
                 </button>
-                <button onclick="syncWithShared()" id="sync-btn" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: transform 0.3s; display: none;">
-                    🔄 Sync Progress
+                <button onclick="syncWithShared()" id="sync-btn" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: transform 0.3s;">
+                    🔄 Update Share Link
                 </button>
                 <button onclick="showAddItemModal()" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: transform 0.3s;">
                     ➕ Add Custom Item
@@ -794,7 +794,6 @@
 
         let appConfig = {};
         let userData = {};
-        let sharedChecklistId = null;
         let isSharedMode = false;
 
         async function initializeChecklist() {
@@ -811,57 +810,82 @@
 
         function checkForSharedChecklist() {
             const urlParams = new URLSearchParams(window.location.search);
-            const shareId = urlParams.get('share');
+            const shareData = urlParams.get('share');
             
-            if (shareId) {
-                sharedChecklistId = shareId;
+            if (shareData) {
                 isSharedMode = true;
-                document.getElementById('sync-btn').style.display = 'inline-block';
-                loadSharedChecklist(shareId);
+                loadSharedChecklist(shareData);
             }
         }
 
-        async function loadSharedChecklist(shareId) {
+        async function loadSharedChecklist(encodedData) {
             try {
-                const response = await fetch(`/api/share?shareId=${shareId}`);
+                const response = await fetch(`/api/share?share=${encodedData}`);
                 if (response.ok) {
-                    const sharedData = await response.json();
+                    const result = await response.json();
+                    const sharedData = result.data;
                     
                     // Load shared progress into localStorage
-                    Object.entries(sharedData.progress).forEach(([key, value]) => {
-                        localStorage.setItem(key, value);
-                    });
+                    if (sharedData.progress) {
+                        Object.entries(sharedData.progress).forEach(([key, value]) => {
+                            localStorage.setItem(key, value);
+                        });
+                    }
+                    
+                    // Load shared custom items
+                    if (sharedData.customItems) {
+                        // Merge with existing custom items
+                        const existingCustomItems = JSON.parse(localStorage.getItem('customItems') || '{}');
+                        const mergedCustomItems = { ...existingCustomItems, ...sharedData.customItems };
+                        localStorage.setItem('customItems', JSON.stringify(mergedCustomItems));
+                        
+                        // Reload custom items into checklistData
+                        loadCustomItems();
+                    }
                     
                     // Update UI to show this is a shared checklist
                     const header = document.querySelector('.header');
+                    const existingSharedInfo = header.querySelector('.shared-info');
+                    if (existingSharedInfo) {
+                        existingSharedInfo.remove();
+                    }
+                    
                     const sharedInfo = document.createElement('div');
+                    sharedInfo.className = 'shared-info';
                     const sharedDiv = document.createElement('div');
                     sharedDiv.style.cssText = 'background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 0.9em;';
                     
                     const ownerText = document.createElement('div');
-                    ownerText.innerHTML = `👥 <strong>Shared Checklist:</strong> ${escapeHtml(sharedData.ownerName)}'s checklist`;
+                    ownerText.innerHTML = `👥 <strong>Shared Checklist from:</strong> ${escapeHtml(sharedData.owner)}`;
                     
-                    const collaboratorsText = document.createElement('small');
-                    collaboratorsText.textContent = `Collaborators: ${sharedData.collaborators.map(name => escapeHtml(name)).join(', ')}`;
+                    const createdText = document.createElement('small');
+                    createdText.textContent = `Shared on: ${new Date(sharedData.createdAt).toLocaleDateString()}`;
                     
-                    const updateText = document.createElement('small');
-                    updateText.textContent = `Last updated: ${new Date(sharedData.lastUpdated).toLocaleString()}`;
+                    const noteText = document.createElement('small');
+                    noteText.style.display = 'block';
+                    noteText.style.marginTop = '5px';
+                    noteText.style.fontStyle = 'italic';
+                    noteText.textContent = 'This is a read-only view. Your changes will be saved locally.';
                     
                     sharedDiv.appendChild(ownerText);
                     sharedDiv.appendChild(document.createElement('br'));
-                    sharedDiv.appendChild(collaboratorsText);
-                    sharedDiv.appendChild(document.createElement('br'));
-                    sharedDiv.appendChild(updateText);
+                    sharedDiv.appendChild(createdText);
+                    sharedDiv.appendChild(noteText);
                     sharedInfo.appendChild(sharedDiv);
                     header.appendChild(sharedInfo);
                     
                     // Re-render with loaded data
                     renderCategories();
                     updateProgress();
+                    
+                    // Show success message
+                    setTimeout(() => {
+                        alert(`✅ Successfully loaded shared checklist from ${sharedData.owner}!\n\nTheir progress and custom items have been merged with your checklist.\nYou can now see their progress and add your own items.`);
+                    }, 500);
                 }
             } catch (error) {
                 console.error('Failed to load shared checklist:', error);
-                alert('Failed to load shared checklist. Using local data.');
+                alert('❌ Failed to load shared checklist. The share link may be invalid or corrupted.\n\nUsing your local data instead.');
             }
         }
 
@@ -1268,6 +1292,9 @@
                 }
             });
 
+            // Collect custom items
+            const customItems = JSON.parse(localStorage.getItem('customItems') || '{}');
+
             try {
                 const response = await fetch('/api/share', {
                     method: 'POST',
@@ -1276,28 +1303,24 @@
                     },
                     body: JSON.stringify({
                         userName,
-                        userProgress
+                        userProgress,
+                        customItems
                     })
                 });
 
                 if (response.ok) {
                     const result = await response.json();
                     
-                    // Show share URL to user
-                    const shareUrl = `${window.location.origin}${window.location.pathname}?share=${result.shareId}`;
-                    
                     // Copy to clipboard
                     try {
-                        await navigator.clipboard.writeText(shareUrl);
-                        alert(`✅ Checklist shared successfully!\n\nShare URL copied to clipboard:\n${shareUrl}\n\nSend this link to family/friends to collaborate on your checklist.`);
+                        await navigator.clipboard.writeText(result.shareUrl);
+                        alert(`✅ Checklist shared successfully!\n\nShare URL copied to clipboard:\n${result.shareUrl}\n\nSend this link to family/friends to view and collaborate on your checklist.\n\nNote: The URL contains your checklist data, so anyone with the link can see your progress.`);
                     } catch (err) {
-                        alert(`✅ Checklist shared successfully!\n\nShare this URL with family/friends:\n${shareUrl}`);
+                        alert(`✅ Checklist shared successfully!\n\nShare this URL with family/friends:\n${result.shareUrl}\n\nNote: Copy this URL manually to share your checklist.`);
                     }
                     
-                    // Update current session to shared mode
-                    sharedChecklistId = result.shareId;
-                    isSharedMode = true;
-                    document.getElementById('sync-btn').style.display = 'inline-block';
+                    // Store the shared URL for future reference
+                    localStorage.setItem('lastSharedUrl', result.shareUrl);
                     
                 } else {
                     throw new Error('Failed to create shared checklist');
@@ -1309,65 +1332,18 @@
         }
 
         async function syncWithShared() {
-            if (!sharedChecklistId || !userData.firstName || !userData.lastName) {
-                alert('No shared checklist to sync with.');
+            const { firstName, lastName } = userData;
+            if (!firstName || !lastName) {
+                alert('Please set up your name first.');
                 return;
             }
 
-            const userName = `${userData.firstName} ${userData.lastName}`;
-            
-            // Collect current progress
-            const userProgress = {};
-            Object.keys(localStorage).forEach(key => {
-                if (key.startsWith('packed-') || key.startsWith('purchased-')) {
-                    userProgress[key] = localStorage.getItem(key);
-                }
-            });
-
-            try {
-                // Update shared checklist with current progress
-                const response = await fetch('/api/share', {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        shareId: sharedChecklistId,
-                        userName,
-                        userProgress
-                    })
-                });
-
-                if (response.ok) {
-                    const result = await response.json();
-                    
-                    // Load updated progress back to localStorage
-                    Object.entries(result.checklist.progress).forEach(([key, value]) => {
-                        localStorage.setItem(key, value);
-                    });
-                    
-                    // Re-render with synced data
-                    renderCategories();
-                    updateProgress();
-                    
-                    // Show success message
-                    const originalText = event.target.innerHTML;
-                    event.target.innerHTML = '✅ Synced!';
-                    
-                    setTimeout(() => {
-                        event.target.innerHTML = originalText;
-                    }, 2000);
-                    
-                } else {
-                    throw new Error('Failed to sync with shared checklist');
-                }
-            } catch (error) {
-                console.error('Sync error:', error);
-                alert('❌ Failed to sync. Please try again.');
-            }
+            // This creates a new share URL with current progress
+            // In URL-based sharing, "sync" means generating a fresh share link
+            await shareChecklist();
         }
 
-        // Auto-sync when user makes changes in shared mode
+        // Update item status and save to localStorage
         function updateStatus(type, itemId, checked) {
             localStorage.setItem(`${type}-${itemId}`, checked);
             
@@ -1382,14 +1358,6 @@
             }
             
             updateProgress();
-            
-            // Auto-sync in shared mode (debounced)
-            if (isSharedMode && sharedChecklistId) {
-                clearTimeout(window.autoSyncTimeout);
-                window.autoSyncTimeout = setTimeout(() => {
-                    syncWithShared();
-                }, 2000); // Sync 2 seconds after last change
-            }
         }
 
         // Custom Item Management Functions

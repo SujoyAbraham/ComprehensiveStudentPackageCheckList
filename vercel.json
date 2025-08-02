@@ -6,8 +6,5 @@
     "api/share.js": {
       "runtime": "nodejs18.x"
     }
-  },
-  "env": {
-    "EDGE_CONFIG": "@edge-config-checklist"
   }
 }

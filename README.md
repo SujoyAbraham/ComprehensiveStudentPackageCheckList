@@ -18,10 +18,10 @@ A comprehensive, interactive web application designed to help Indian students pl
 - **Persistent Storage** - Progress saved locally in browser
 
 ### 👥 **Collaboration Features**
-- **Multi-User Sharing** - Generate shareable links for collaborative planning
-- **Real-time Sync** - Automatic synchronization with shared checklists
-- **Collaborator Tracking** - See who last updated shared lists
-- **Merge Progress** - Combine individual progress with shared data
+- **URL-Based Sharing** - Generate shareable links with embedded checklist data
+- **No Server Dependencies** - Works entirely with browser storage and URL sharing
+- **Progress Merging** - Import shared progress and custom items from others
+- **Local Collaboration** - View others' progress while maintaining your own data
 
 ### 🔍 **Advanced Filtering & Search**
 - **Category Filters** - Filter by specific item categories
@@ -68,7 +68,7 @@ Visit the live application: [Student Checklist](https://your-vercel-app.vercel.a
 
 - **Frontend**: HTML5, CSS3, Vanilla JavaScript
 - **Styling**: CSS Grid, Flexbox, Custom CSS Animations
-- **Storage**: Browser localStorage, Vercel Edge Config
+- **Storage**: Browser localStorage, URL-based data sharing
 - **APIs**: Vercel Serverless Functions
 - **Deployment**: Vercel Platform
 - **Version Control**: Git
@@ -125,17 +125,16 @@ ComprehensiveStudentPackageCheckList/
    vercel --prod
    ```
 
-3. **Set up Edge Config** (Required for sharing features)
-   ```bash
-   vercel env add EDGE_CONFIG
-   # Enter: @edge-config-checklist
-   ```
+3. **Deploy is complete!**
+   
+   No additional configuration needed - the app works entirely with browser storage and URL-based sharing.
 
 ### Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `EDGE_CONFIG` | Vercel Edge Config store ID | Yes (for sharing) |
+**No environment variables required!** The application works entirely with:
+- Browser localStorage for individual progress
+- URL-based sharing for collaboration
+- No external dependencies or paid services needed
 
 ## 🧪 Testing
 
