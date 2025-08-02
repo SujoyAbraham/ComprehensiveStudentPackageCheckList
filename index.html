@@ -581,6 +581,9 @@
                 <button onclick="showAddItemModal()" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: transform 0.3s;">
                     ➕ Add Custom Item
                 </button>
+                <button onclick="resetUserSetup()" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: transform 0.3s;">
+                    🔄 Reset User
+                </button>
             </div>
         </div>
 
@@ -890,32 +893,100 @@
         }
 
         function checkUserSetup() {
-            const firstName = localStorage.getItem('user-first-name');
-            const lastName = localStorage.getItem('user-last-name');
-            
-            if (!firstName || !lastName) {
-                document.getElementById('user-setup').classList.remove('hidden');
-            } else {
-                userData = { firstName, lastName };
-                updatePersonalizedContent();
+            try {
+                // Test localStorage availability
+                if (typeof(Storage) === "undefined") {
+                    alert('Your browser does not support local storage. Some features may not work properly.');
+                    return;
+                }
+                
+                const firstName = localStorage.getItem('user-first-name');
+                const lastName = localStorage.getItem('user-last-name');
+                
+                console.log('Checking user setup:', { firstName, lastName });
+                
+                if (!firstName || !lastName) {
+                    console.log('No user data found, showing setup modal');
+                    const modal = document.getElementById('user-setup');
+                    if (modal) {
+                        modal.classList.remove('hidden');
+                        console.log('Setup modal shown');
+                        
+                        // Focus on first input for better UX
+                        setTimeout(() => {
+                            const firstInput = document.getElementById('first-name');
+                            if (firstInput) firstInput.focus();
+                        }, 100);
+                    } else {
+                        console.error('Setup modal element not found');
+                    }
+                } else {
+                    console.log('User data found, updating content');
+                    userData = { firstName, lastName };
+                    updatePersonalizedContent();
+                }
+            } catch (error) {
+                console.error('Error in checkUserSetup:', error);
+                alert('Error checking user setup. Please refresh the page.');
             }
         }
 
         function saveUserInfo() {
-            const firstName = document.getElementById('first-name').value.trim();
-            const lastName = document.getElementById('last-name').value.trim();
-            
-            if (!firstName || !lastName) {
-                alert('Please enter both first and last name.');
-                return;
+            try {
+                const firstNameInput = document.getElementById('first-name');
+                const lastNameInput = document.getElementById('last-name');
+                
+                if (!firstNameInput || !lastNameInput) {
+                    console.error('Input fields not found');
+                    alert('Form error. Please refresh the page and try again.');
+                    return;
+                }
+                
+                const firstName = firstNameInput.value.trim();
+                const lastName = lastNameInput.value.trim();
+                
+                if (!firstName || !lastName) {
+                    alert('Please enter both first and last name.');
+                    return;
+                }
+                
+                if (firstName.length < 2 || lastName.length < 2) {
+                    alert('Names must be at least 2 characters long.');
+                    return;
+                }
+                
+                // Test localStorage
+                try {
+                    localStorage.setItem('user-first-name', firstName);
+                    localStorage.setItem('user-last-name', lastName);
+                } catch (storageError) {
+                    console.error('LocalStorage error:', storageError);
+                    alert('Unable to save data. Please check if cookies/localStorage are enabled.');
+                    return;
+                }
+                
+                userData = { firstName, lastName };
+                
+                // Hide modal
+                const modal = document.getElementById('user-setup');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    console.log('Modal hidden successfully');
+                } else {
+                    console.error('Modal element not found');
+                }
+                
+                updatePersonalizedContent();
+                
+                // Show welcome message
+                setTimeout(() => {
+                    alert(`Welcome ${firstName}! Your personal checklist is ready. 🎉`);
+                }, 500);
+                
+            } catch (error) {
+                console.error('Error in saveUserInfo:', error);
+                alert('An error occurred. Please refresh the page and try again.');
             }
-            
-            localStorage.setItem('user-first-name', firstName);
-            localStorage.setItem('user-last-name', lastName);
-            userData = { firstName, lastName };
-            
-            document.getElementById('user-setup').classList.add('hidden');
-            updatePersonalizedContent();
         }
 
         function updatePersonalizedContent() {
@@ -1537,6 +1608,25 @@
                 closeItemModal();
             }
         });
+
+        // Reset user setup for testing
+        function resetUserSetup() {
+            if (confirm('Are you sure you want to reset your user information? This will show the welcome popup again.')) {
+                localStorage.removeItem('user-first-name');
+                localStorage.removeItem('user-last-name');
+                userData = {};
+                document.getElementById('user-setup').classList.remove('hidden');
+                
+                // Clear the form
+                document.getElementById('first-name').value = '';
+                document.getElementById('last-name').value = '';
+                
+                // Focus on first input
+                setTimeout(() => {
+                    document.getElementById('first-name').focus();
+                }, 100);
+            }
+        }
 
         // Initialize the checklist when page loads
         document.addEventListener('DOMContentLoaded', initializeChecklist);
