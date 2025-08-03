@@ -24,29 +24,16 @@ async function getConnection() {
   return pool;
 }
 
-// Initialize database schema
-async function initializeDatabase() {
+// Verify database connection (tables should already exist)
+async function verifyConnection() {
   try {
     const connection = await getConnection();
     
-    // Create user_data table if it doesn't exist
-    await connection.execute(`
-      CREATE TABLE IF NOT EXISTS user_data (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        user_id VARCHAR(50) DEFAULT 'anub_abby',
-        first_name VARCHAR(100),
-        last_name VARCHAR(100),
-        progress_data JSON,
-        custom_items JSON,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        UNIQUE KEY unique_user (user_id)
-      ) ENGINE=InnoDB;
-    `);
-    
-    console.log('Database schema initialized');
+    // Just verify the connection works
+    await connection.execute('SELECT 1');
+    console.log('Database connection verified');
   } catch (error) {
-    console.error('Database initialization error:', error);
+    console.error('Database connection error:', error);
     throw error;
   }
 }
@@ -63,8 +50,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Initialize database on first request
-    await initializeDatabase();
+    // Verify database connection
+    await verifyConnection();
     
     const connection = await getConnection();
     const userId = 'anub_abby'; // Single user system

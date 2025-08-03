@@ -571,7 +571,7 @@
             <p id="main-subtitle">Anub Abby - India to Germany Journey</p>
             <div id="welcome-message" class="welcome-text hidden"></div>
             <div id="cache-warning" style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 0.9em;">
-                ⚠️ <strong>Important:</strong> Your progress is saved in browser cache. Please don't clear browser data to keep your checklist progress!
+                ☁️ <strong>Real-time Sync:</strong> Your progress is automatically saved to TiDB cloud and synced in real-time!
             </div>
         </div>
 
@@ -689,135 +689,7 @@
     </div>
 
     <script>
-        const checklistData = {
-            "Clothing": [
-                {"item": "Winter Jacket (Heavy)", "quantity": "1-2", "remarks": "Essential for German winters (-10°C to 5°C)", "cost": "3000-8000", "priority": "High"},
-                {"item": "Thermal Underwear", "quantity": "3-4 sets", "remarks": "Base layer for winter", "cost": "1500-3000", "priority": "High"},
-                {"item": "Warm Sweaters/Hoodies", "quantity": "4-5", "remarks": "Wool or fleece material", "cost": "2000-5000", "priority": "High"},
-                {"item": "Jeans/Trousers", "quantity": "4-5", "remarks": "Regular and warm varieties", "cost": "2000-4000", "priority": "Medium"},
-                {"item": "Formal Shirts", "quantity": "3-4", "remarks": "For presentations and interviews", "cost": "1500-3000", "priority": "Medium"},
-                {"item": "T-Shirts", "quantity": "6-8", "remarks": "Cotton and synthetic blend", "cost": "1200-2400", "priority": "Medium"},
-                {"item": "Undergarments", "quantity": "10-12", "remarks": "Include thermal variants", "cost": "1000-2000", "priority": "High"},
-                {"item": "Socks (Winter)", "quantity": "8-10 pairs", "remarks": "Wool or thermal socks", "cost": "800-1500", "priority": "High"},
-                {"item": "Sleepwear", "quantity": "3-4 sets", "remarks": "Warm pajamas for winter", "cost": "1000-2000", "priority": "Medium"},
-                {"item": "Raincoat/Windbreaker", "quantity": "1", "remarks": "For frequent rain", "cost": "1500-3000", "priority": "Medium"}
-            ],
-            "Footwear": [
-                {"item": "Winter Boots", "quantity": "1 pair", "remarks": "Waterproof, for snow and rain", "cost": "3000-6000", "priority": "High"},
-                {"item": "Casual Shoes", "quantity": "2 pairs", "remarks": "Comfortable for daily wear", "cost": "2000-4000", "priority": "Medium"},
-                {"item": "Formal Shoes", "quantity": "1 pair", "remarks": "For interviews and formal events", "cost": "2000-4000", "priority": "Medium"},
-                {"item": "Sports Shoes", "quantity": "1 pair", "remarks": "For gym and outdoor activities", "cost": "2000-5000", "priority": "Medium"},
-                {"item": "House Slippers", "quantity": "1 pair", "remarks": "Indoor use", "cost": "300-800", "priority": "Low"},
-                {"item": "Sandals", "quantity": "1 pair", "remarks": "For summer months", "cost": "800-1500", "priority": "Low"}
-            ],
-            "Kitchen Essentials": [
-                {"item": "Pressure Cooker (Small)", "quantity": "1", "remarks": "Essential for Indian cooking", "cost": "1500-3000", "priority": "High"},
-                {"item": "Rice Cooker", "quantity": "1", "remarks": "Convenient for daily use", "cost": "2000-4000", "priority": "Medium"},
-                {"item": "Non-stick Pan Set", "quantity": "2-3", "remarks": "Different sizes", "cost": "1500-3000", "priority": "Medium"},
-                {"item": "Steel Utensils Set", "quantity": "1 set", "remarks": "Plates, bowls, glasses", "cost": "1000-2000", "priority": "Medium"},
-                {"item": "Knife Set", "quantity": "1 set", "remarks": "Basic kitchen knives", "cost": "1000-2000", "priority": "Medium"},
-                {"item": "Spice Box (Masala Dabba)", "quantity": "1", "remarks": "Traditional Indian spice container", "cost": "500-1000", "priority": "High"},
-                {"item": "Thermos/Insulated Bottles", "quantity": "2", "remarks": "For hot beverages", "cost": "800-1500", "priority": "Medium"},
-                {"item": "Lunch Box", "quantity": "1-2", "remarks": "For carrying meals", "cost": "500-1000", "priority": "Medium"},
-                {"item": "Cutting Board", "quantity": "1", "remarks": "Wooden or plastic", "cost": "300-800", "priority": "Low"},
-                {"item": "Can Opener & Basic Tools", "quantity": "1 set", "remarks": "Essential kitchen tools", "cost": "500-1000", "priority": "Low"}
-            ],
-            "Personal Care": [
-                {"item": "Toothbrush & Toothpaste", "quantity": "2-3", "remarks": "Travel and regular size", "cost": "300-600", "priority": "High"},
-                {"item": "Shampoo & Conditioner", "quantity": "2 bottles", "remarks": "Suitable for European water", "cost": "800-1500", "priority": "Medium"},
-                {"item": "Body Wash/Soap", "quantity": "3-4", "remarks": "Moisturizing for dry climate", "cost": "600-1200", "priority": "Medium"},
-                {"item": "Face Wash & Moisturizer", "quantity": "2 each", "remarks": "For climate change adaptation", "cost": "1000-2000", "priority": "Medium"},
-                {"item": "Sunscreen", "quantity": "2 tubes", "remarks": "SPF 30+ for all seasons", "cost": "800-1500", "priority": "Medium"},
-                {"item": "Deodorant/Perfume", "quantity": "2-3", "remarks": "Long-lasting varieties", "cost": "1000-2000", "priority": "Medium"},
-                {"item": "Hair Oil", "quantity": "2 bottles", "remarks": "Coconut or preferred oil", "cost": "400-800", "priority": "Medium"},
-                {"item": "Nail Clippers & Grooming Kit", "quantity": "1 set", "remarks": "Complete grooming tools", "cost": "500-1000", "priority": "Low"},
-                {"item": "Towels", "quantity": "3-4", "remarks": "Quick-dry varieties", "cost": "1000-2000", "priority": "Medium"},
-                {"item": "Feminine Hygiene Products", "quantity": "6 months supply", "remarks": "Preferred brands may not be available", "cost": "1000-2000", "priority": "High"}
-            ],
-            "Groceries & Food": [
-                {"item": "Basmati Rice", "quantity": "2-3 kg", "remarks": "Good quality, vacuum packed", "cost": "600-1200", "priority": "High"},
-                {"item": "Dal/Lentils Variety Pack", "quantity": "1-2 kg", "remarks": "Toor, moong, chana dal", "cost": "500-1000", "priority": "High"},
-                {"item": "Spices (Garam Masala, Turmeric, etc.)", "quantity": "500g total", "remarks": "Essential Indian spices", "cost": "800-1500", "priority": "High"},
-                {"item": "Tea (Chai) & Coffee", "quantity": "500g each", "remarks": "Preferred Indian brands", "cost": "600-1200", "priority": "Medium"},
-                {"item": "Pickle & Chutneys", "quantity": "2-3 jars", "remarks": "Homemade or commercial", "cost": "500-1000", "priority": "Medium"},
-                {"item": "Papad & Dried Snacks", "quantity": "500g", "remarks": "Easy to carry and store", "cost": "300-600", "priority": "Low"},
-                {"item": "Ghee", "quantity": "500ml", "remarks": "Pure cow ghee", "cost": "400-800", "priority": "Medium"},
-                {"item": "Atta (Wheat Flour)", "quantity": "1-2 kg", "remarks": "For making rotis", "cost": "200-400", "priority": "Medium"},
-                {"item": "Instant Food Items", "quantity": "10-15 packets", "remarks": "Maggi, ready-to-eat meals", "cost": "800-1500", "priority": "Low"},
-                {"item": "Dry Fruits & Nuts", "quantity": "500g", "remarks": "Almonds, dates, raisins", "cost": "1500-3000", "priority": "Low"}
-            ],
-            "Documents": [
-                {"item": "Passport", "quantity": "1", "remarks": "Valid for 6+ months", "cost": "3500", "priority": "High"},
-                {"item": "Student Visa", "quantity": "1", "remarks": "Germany student visa", "cost": "7500", "priority": "High"},
-                {"item": "Admission Letter", "quantity": "Original + 3 copies", "remarks": "University admission letter", "cost": "0", "priority": "High"},
-                {"item": "Academic Transcripts", "quantity": "Original + 5 copies", "remarks": "All previous education", "cost": "500", "priority": "High"},
-                {"item": "Degree Certificates", "quantity": "Original + 5 copies", "remarks": "Attested copies", "cost": "1000", "priority": "High"},
-                {"item": "Medical Certificates", "quantity": "Original + 2 copies", "remarks": "Health checkup, vaccinations", "cost": "2000", "priority": "High"},
-                {"item": "Financial Documents", "quantity": "Original + 3 copies", "remarks": "Bank statements, scholarship letters", "cost": "200", "priority": "High"},
-                {"item": "Insurance Documents", "quantity": "Original + 2 copies", "remarks": "Health and travel insurance", "cost": "15000", "priority": "High"},
-                {"item": "Photographs", "quantity": "20", "remarks": "Passport size, recent", "cost": "200", "priority": "Medium"},
-                {"item": "Character Certificate", "quantity": "Original + 2 copies", "remarks": "Police verification", "cost": "500", "priority": "Medium"},
-                {"item": "Birth Certificate", "quantity": "Original + 2 copies", "remarks": "Attested copy", "cost": "100", "priority": "Low"},
-                {"item": "Driving License", "quantity": "Original + 2 copies", "remarks": "International driving permit", "cost": "1000", "priority": "Low"}
-            ],
-            "Electronics": [
-                {"item": "Laptop", "quantity": "1", "remarks": "Study-appropriate specs", "cost": "40000-80000", "priority": "High"},
-                {"item": "Smartphone", "quantity": "1", "remarks": "Unlocked, compatible with German networks", "cost": "15000-40000", "priority": "High"},
-                {"item": "Universal Power Adapter", "quantity": "2", "remarks": "Type C & F for Germany", "cost": "1000-2000", "priority": "High"},
-                {"item": "Power Bank", "quantity": "1-2", "remarks": "High capacity (10000mAh+)", "cost": "1500-3000", "priority": "Medium"},
-                {"item": "Laptop Charger (Extra)", "quantity": "1", "remarks": "Backup charger", "cost": "2000-4000", "priority": "Medium"},
-                {"item": "Phone Charger & Cables", "quantity": "2 sets", "remarks": "USB-C, Lightning as needed", "cost": "800-1500", "priority": "Medium"},
-                {"item": "Headphones/Earphones", "quantity": "1 pair", "remarks": "Good quality for online classes", "cost": "1500-5000", "priority": "Medium"},
-                {"item": "External Hard Drive", "quantity": "1", "remarks": "1TB for backups", "cost": "3000-5000", "priority": "Medium"},
-                {"item": "Webcam (if laptop doesn't have good one)", "quantity": "1", "remarks": "For video calls and classes", "cost": "2000-4000", "priority": "Low"},
-                {"item": "Extension Cord", "quantity": "1", "remarks": "Multi-socket with surge protection", "cost": "800-1500", "priority": "Low"}
-            ],
-            "Medicines": [
-                {"item": "Fever & Pain Relief", "quantity": "2 strips", "remarks": "Paracetamol, Ibuprofen", "cost": "200-400", "priority": "High"},
-                {"item": "Cold & Cough Medicine", "quantity": "2 bottles", "remarks": "Syrup and tablets", "cost": "300-600", "priority": "High"},
-                {"item": "Stomach Upset Medicine", "quantity": "2 strips", "remarks": "Antacid, ORS packets", "cost": "200-400", "priority": "High"},
-                {"item": "Antiseptic Cream", "quantity": "2 tubes", "remarks": "For cuts and wounds", "cost": "200-400", "priority": "Medium"},
-                {"item": "Band-aids & Gauze", "quantity": "1 pack each", "remarks": "First aid essentials", "cost": "200-400", "priority": "Medium"},
-                {"item": "Prescription Medicines", "quantity": "3 months supply", "remarks": "Any ongoing medications", "cost": "1000-5000", "priority": "High"},
-                {"item": "Vitamin Supplements", "quantity": "2 bottles", "remarks": "Vitamin D, B12 for European climate", "cost": "800-1500", "priority": "Medium"},
-                {"item": "Eye Drops", "quantity": "2 bottles", "remarks": "For dry eyes from screen time", "cost": "300-600", "priority": "Low"},
-                {"item": "Thermometer", "quantity": "1", "remarks": "Digital thermometer", "cost": "300-600", "priority": "Medium"},
-                {"item": "Hot Water Bag", "quantity": "1", "remarks": "For winter aches", "cost": "300-600", "priority": "Low"}
-            ],
-            "Banking & Cards": [
-                {"item": "International Debit Card", "quantity": "1", "remarks": "Forex-enabled, low charges", "cost": "500", "priority": "High"},
-                {"item": "Credit Card", "quantity": "1", "remarks": "International usage enabled", "cost": "500", "priority": "High"},
-                {"item": "Forex Card", "quantity": "1", "remarks": "Pre-loaded EUR card", "cost": "200", "priority": "Medium"},
-                {"item": "Cash (EUR)", "quantity": "500-1000 EUR", "remarks": "For initial expenses", "cost": "45000-90000", "priority": "High"},
-                {"item": "Cash (INR)", "quantity": "10000-20000", "remarks": "For last-minute expenses in India", "cost": "10000-20000", "priority": "Medium"},
-                {"item": "Bank Account Documents", "quantity": "1 set", "remarks": "For opening German bank account", "cost": "0", "priority": "High"},
-                {"item": "Financial Backup Plan", "quantity": "1", "remarks": "Emergency fund access method", "cost": "0", "priority": "Medium"}
-            ],
-            "Stationery & Academic": [
-                {"item": "Notebooks", "quantity": "5-10", "remarks": "A4 size, ruled and plain", "cost": "500-1000", "priority": "Medium"},
-                {"item": "Pens & Pencils", "quantity": "10 each", "remarks": "Blue, black pens + mechanical pencils", "cost": "300-600", "priority": "Medium"},
-                {"item": "Highlighters", "quantity": "5", "remarks": "Different colors", "cost": "200-400", "priority": "Low"},
-                {"item": "Stapler & Staples", "quantity": "1 set", "remarks": "For document organization", "cost": "200-400", "priority": "Low"},
-                {"item": "Folders & Files", "quantity": "10", "remarks": "For document storage", "cost": "300-600", "priority": "Medium"},
-                {"item": "Calculator", "quantity": "1", "remarks": "Scientific calculator", "cost": "500-1500", "priority": "Medium"},
-                {"item": "Ruler & Geometry Set", "quantity": "1 set", "remarks": "For technical drawings", "cost": "200-400", "priority": "Low"},
-                {"item": "Sticky Notes", "quantity": "5 packs", "remarks": "For study organization", "cost": "200-400", "priority": "Low"},
-                {"item": "Backpack", "quantity": "1", "remarks": "Laptop compartment, weather-resistant", "cost": "1500-3000", "priority": "High"},
-                {"item": "Study Lamp", "quantity": "1", "remarks": "LED desk lamp", "cost": "800-1500", "priority": "Low"}
-            ],
-            "Miscellaneous": [
-                {"item": "Umbrella", "quantity": "1", "remarks": "Compact, sturdy for frequent rain", "cost": "500-1000", "priority": "Medium"},
-                {"item": "Travel Pillow", "quantity": "1", "remarks": "For comfortable journey", "cost": "800-1500", "priority": "Low"},
-                {"item": "Luggage Locks", "quantity": "2-3", "remarks": "TSA-approved locks", "cost": "600-1200", "priority": "Medium"},
-                {"item": "Sewing Kit", "quantity": "1", "remarks": "Basic repairs", "cost": "200-400", "priority": "Low"},
-                {"item": "Indian Flag Pin", "quantity": "2", "remarks": "Cultural representation", "cost": "100-200", "priority": "Low"},
-                {"item": "Emergency Contact List", "quantity": "3 copies", "remarks": "Laminated, important numbers", "cost": "100", "priority": "High"},
-                {"item": "Mattress Protector", "quantity": "1", "remarks": "For dorm bed", "cost": "800-1500", "priority": "Low"},
-                {"item": "Alarm Clock", "quantity": "1", "remarks": "Backup to phone", "cost": "500-1000", "priority": "Low"},
-                {"item": "Padlock", "quantity": "2", "remarks": "For lockers and storage", "cost": "400-800", "priority": "Medium"},
-                {"item": "European SIM Card", "quantity": "1", "remarks": "Pre-ordered or upon arrival", "cost": "1000-2000", "priority": "High"}
-            ]
-        };
+        let checklistData = {}; // Will be loaded from TiDB
 
         let currentFilter = {
             priority: ['high', 'medium', 'low'],
@@ -832,11 +704,39 @@
 
         async function initializeChecklist() {
             await loadUserData();
+            await loadChecklistData();
             updatePersonalizedContent();
             renderCategories();
             attachEventListeners();
             updateProgress();
             displayTips();
+        }
+
+        // Load checklist data from TiDB
+        async function loadChecklistData() {
+            try {
+                console.log('🔄 Loading checklist data from TiDB...');
+                const response = await fetch('/api/checklist-items');
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('📡 Checklist data loaded:', result);
+                    
+                    if (result.data) {
+                        checklistData = result.data;
+                        console.log('✅ Checklist data loaded from TiDB:', {
+                            categories: Object.keys(checklistData).length,
+                            totalItems: Object.values(checklistData).reduce((sum, items) => sum + items.length, 0)
+                        });
+                    } else {
+                        console.log('❌ No checklist data found in TiDB');
+                    }
+                } else {
+                    console.log('❌ Failed to load checklist data:', response.status);
+                }
+            } catch (error) {
+                console.error('🚨 Failed to load checklist data from TiDB:', error);
+            }
         }
 
         // Edge Config API functions
@@ -1260,9 +1160,9 @@
 
         function renderCategoryItems(categoryName, items) {
             return items.map((item, index) => {
-                const itemId = `${categoryName}-${index}`;
-                const packed = userProgress[`packed-${itemId}`] === 'true';
-                const purchased = userProgress[`purchased-${itemId}`] === 'true';
+                const itemId = item.id || `${categoryName}-${index}`;
+                const packed = item.isPacked || false;
+                const purchased = item.isPurchased || false;
                 
                 if (!shouldShowItem(item, packed)) {
                     return '';
@@ -1281,19 +1181,19 @@
                         <td>
                             <input type="checkbox" class="checkbox" 
                                    ${packed ? 'checked' : ''} 
-                                   onchange="updateStatus('packed', '${itemId}', this.checked)">
+                                   onchange="updateItemStatus(${itemId}, 'packed', this.checked)">
                         </td>
                         <td>
                             <input type="checkbox" class="checkbox" 
                                    ${purchased ? 'checked' : ''} 
-                                   onchange="updateStatus('purchased', '${itemId}', this.checked)">
+                                   onchange="updateItemStatus(${itemId}, 'purchased', this.checked)">
                         </td>
                         <td>
                             <div class="item-actions">
-                                <button class="btn-edit" onclick="showEditItemModal('${itemId}', '${categoryName.replace(/'/g, "\\'")}', ${index})" title="Edit item">
+                                <button class="btn-edit" onclick="showEditItemModal(${itemId}, '${categoryName.replace(/'/g, "\\'")}', ${index})" title="Edit item">
                                     ✏️
                                 </button>
-                                <button class="btn-delete" onclick="deleteItem('${categoryName.replace(/'/g, "\\'")}', ${index})" title="Delete item">
+                                <button class="btn-delete" onclick="deleteItemById(${itemId})" title="Delete item">
                                     🗑️
                                 </button>
                             </div>
@@ -1344,10 +1244,9 @@
             let packedItems = 0;
 
             Object.entries(checklistData).forEach(([categoryName, items]) => {
-                items.forEach((item, index) => {
+                items.forEach((item) => {
                     totalItems++;
-                    const itemId = `${categoryName}-${index}`;
-                    if (userProgress[`packed-${itemId}`] === 'true') {
+                    if (item.isPacked) {
                         packedItems++;
                     }
                 });
@@ -1430,10 +1329,9 @@
             
             // Process each category
             Object.entries(checklistData).forEach(([categoryName, items]) => {
-                items.forEach((item, index) => {
-                    const itemId = `${categoryName}-${index}`;
-                    const packed = userProgress[`packed-${itemId}`] === 'true';
-                    const purchased = userProgress[`purchased-${itemId}`] === 'true';
+                items.forEach((item) => {
+                    const packed = item.isPacked || false;
+                    const purchased = item.isPurchased || false;
                     
                     let status = 'Pending';
                     if (packed && purchased) status = 'Complete';
@@ -1569,24 +1467,68 @@
             await shareChecklist();
         }
 
-        // Update item status and save to Edge Config
-        function updateStatus(type, itemId, checked) {
-            userProgress[`${type}-${itemId}`] = checked;
-            
-            // Save to Edge Config (debounced)
-            debouncedSave();
-            
-            const row = document.getElementById(`row-${itemId}`);
-            const packed = userProgress[`packed-${itemId}`] === 'true';
-            const purchased = userProgress[`purchased-${itemId}`] === 'true';
-            
-            if (packed && purchased) {
-                row.classList.add('completed-row');
-            } else {
-                row.classList.remove('completed-row');
+        // Update item status in TiDB
+        async function updateItemStatus(itemId, type, checked) {
+            try {
+                const updateData = {
+                    id: itemId,
+                    [type === 'packed' ? 'isPacked' : 'isPurchased']: checked
+                };
+                
+                const response = await fetch('/api/checklist-items', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                if (response.ok) {
+                    // Update local data
+                    Object.entries(checklistData).forEach(([categoryName, items]) => {
+                        items.forEach(item => {
+                            if (item.id === itemId) {
+                                if (type === 'packed') {
+                                    item.isPacked = checked;
+                                } else {
+                                    item.isPurchased = checked;
+                                }
+                            }
+                        });
+                    });
+                    
+                    // Update UI
+                    const row = document.getElementById(`row-${itemId}`);
+                    const item = findItemById(itemId);
+                    if (item && row) {
+                        if (item.isPacked && item.isPurchased) {
+                            row.classList.add('completed-row');
+                        } else {
+                            row.classList.remove('completed-row');
+                        }
+                    }
+                    
+                    updateProgress();
+                } else {
+                    console.error('Failed to update item status:', response.status);
+                    alert('Failed to update item status. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error updating item status:', error);
+                alert('Error updating item status. Please check your connection.');
             }
-            
-            updateProgress();
+        }
+
+        // Helper function to find item by ID
+        function findItemById(itemId) {
+            for (const [categoryName, items] of Object.entries(checklistData)) {
+                for (const item of items) {
+                    if (item.id === itemId) {
+                        return item;
+                    }
+                }
+            }
+            return null;
         }
 
         // Debounced save to avoid too many API calls
@@ -1648,7 +1590,7 @@
             editingItemId = null;
         }
 
-        function saveItem(event) {
+        async function saveItem(event) {
             event.preventDefault();
             
             const itemData = {
@@ -1667,35 +1609,72 @@
                 return;
             }
             
-            if (editingItemId) {
-                // Editing existing item
-                updateExistingItem(categoryName, itemData);
-            } else {
-                // Adding new item
-                addNewItem(categoryName, itemData);
-            }
+            // Disable form while saving
+            const saveBtn = document.getElementById('save-btn');
+            const originalText = saveBtn.textContent;
+            saveBtn.textContent = 'Saving...';
+            saveBtn.disabled = true;
             
-            closeItemModal();
-            renderCategories();
-            updateProgress();
+            try {
+                if (editingItemId) {
+                    // Editing existing item
+                    await updateExistingItem(categoryName, itemData);
+                } else {
+                    // Adding new item
+                    await addNewItem(categoryName, itemData);
+                }
+                
+                closeItemModal();
+                renderCategories();
+                updateProgress();
+            } catch (error) {
+                console.error('Error saving item:', error);
+            } finally {
+                // Re-enable form
+                saveBtn.textContent = originalText;
+                saveBtn.disabled = false;
+            }
         }
 
-        function addNewItem(categoryName, itemData) {
-            // Initialize category in custom items if it doesn't exist
-            if (!customItems[categoryName]) {
-                customItems[categoryName] = [];
+        async function addNewItem(categoryName, itemData) {
+            try {
+                const response = await fetch('/api/checklist-items', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        category: categoryName,
+                        item: itemData.item,
+                        quantity: itemData.quantity,
+                        remarks: itemData.remarks,
+                        cost: itemData.cost,
+                        priority: itemData.priority,
+                        isCustom: itemData.isCustom
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    // Add ID to the item data
+                    itemData.id = result.data.id;
+                    
+                    // Add to local checklistData for immediate display
+                    if (!checklistData[categoryName]) {
+                        checklistData[categoryName] = [];
+                    }
+                    checklistData[categoryName].push(itemData);
+                    
+                    console.log('✅ Item added successfully to TiDB');
+                } else {
+                    console.error('Failed to add item:', response.status);
+                    alert('Failed to add item. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error adding item:', error);
+                alert('Error adding item. Please check your connection.');
             }
-            
-            // Add to checklistData for immediate display
-            if (!checklistData[categoryName]) {
-                checklistData[categoryName] = [];
-            }
-            
-            checklistData[categoryName].push(itemData);
-            customItems[categoryName].push(itemData);
-            
-            // Save to Edge Config
-            debouncedSave();
         }
 
         function updateExistingItem(categoryName, itemData) {
@@ -1717,25 +1696,35 @@
             }
         }
 
-        function deleteItem(categoryName, itemIndex) {
+        async function deleteItemById(itemId) {
             if (confirm('Are you sure you want to delete this item?')) {
-                // Remove from checklistData
-                checklistData[categoryName].splice(itemIndex, 1);
-                
-                // Remove from customItems if it exists
-                if (customItems[categoryName] && customItems[categoryName][itemIndex]) {
-                    customItems[categoryName].splice(itemIndex, 1);
-                    debouncedSave();
+                try {
+                    const response = await fetch(`/api/checklist-items?id=${itemId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        // Remove from local checklistData
+                        Object.entries(checklistData).forEach(([categoryName, items]) => {
+                            const index = items.findIndex(item => item.id === itemId);
+                            if (index !== -1) {
+                                items.splice(index, 1);
+                            }
+                        });
+                        
+                        // Re-render and update progress
+                        renderCategories();
+                        updateProgress();
+                        
+                        console.log('✅ Item deleted successfully from TiDB');
+                    } else {
+                        console.error('Failed to delete item:', response.status);
+                        alert('Failed to delete item. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error deleting item:', error);
+                    alert('Error deleting item. Please check your connection.');
                 }
-                
-                // Clean up progress for this item's status
-                const itemId = `${categoryName}-${itemIndex}`;
-                delete userProgress[`packed-${itemId}`];
-                delete userProgress[`purchased-${itemId}`];
-                debouncedSave();
-                
-                renderCategories();
-                updateProgress();
             }
         }
 
