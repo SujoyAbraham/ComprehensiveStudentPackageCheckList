@@ -1643,9 +1643,8 @@
                 
                 console.log(`📊 DEBUG: ${categoryName}: ${categoryItemCount} items, ₹${categoryTotal}`);
                 
-                if (categoryTotal > 0) {
-                    categoryCosts[categoryName] = categoryTotal;
-                }
+                // Always include all categories, even those with zero cost
+                categoryCosts[categoryName] = categoryTotal;
             });
             
             console.log('📊 DEBUG: Final category costs:', categoryCosts);
@@ -1704,8 +1703,7 @@
             };
 
             const sortedCategories = Object.entries(categoryCosts)
-                .sort(([,a], [,b]) => b - a)
-                .slice(0, 8); // Show top 8 categories
+                .sort(([,a], [,b]) => b - a); // Show all categories
 
             breakdownContainer.innerHTML = sortedCategories.map(([categoryName, cost]) => {
                 const icon = getCategoryIcon(categoryName);

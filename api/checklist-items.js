@@ -60,13 +60,14 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       console.log('📡 GET request to checklist items API');
       
-      // Get all checklist items for the user
+      // Get all checklist items for the user with category names from categories table
       const [rows] = await connection.execute(
-        `SELECT id, category, item_name, quantity, remarks, cost, priority, 
-                is_custom, is_packed, is_purchased, created_at, updated_at
-         FROM checklist_items 
-         WHERE user_id = ? 
-         ORDER BY category, created_at`,
+        `SELECT ci.id, c.category_name as category, ci.item_name, ci.quantity, ci.remarks, ci.cost, ci.priority, 
+                ci.is_custom, ci.is_packed, ci.is_purchased, ci.created_at, ci.updated_at
+         FROM checklist_items ci
+         LEFT JOIN categories c ON ci.category_id = c.id
+         WHERE ci.user_id = ? 
+         ORDER BY c.display_order, ci.created_at`,
         [userId]
       );
 
@@ -107,11 +108,23 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Category and item name are required' });
       }
 
+      // Get category_id from category name
+      const [categoryRows] = await connection.execute(
+        'SELECT id FROM categories WHERE category_name = ?',
+        [category]
+      );
+      
+      if (categoryRows.length === 0) {
+        return res.status(400).json({ error: 'Invalid category name' });
+      }
+      
+      const categoryId = categoryRows[0].id;
+
       const [result] = await connection.execute(
         `INSERT INTO checklist_items 
-         (user_id, category, item_name, quantity, remarks, cost, priority, is_custom) 
+         (user_id, category_id, item_name, quantity, remarks, cost, priority, is_custom) 
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [userId, category, item, quantity || '1', remarks || '', cost || '0', priority || 'Medium', !!isCustom]
+        [userId, categoryId, item, quantity || '1', remarks || '', cost || '0', priority || 'Medium', !!isCustom]
       );
       
       res.status(201).json({
@@ -132,7 +145,20 @@ export default async function handler(req, res) {
       const updateFields = [];
       const updateValues = [];
       
-      if (category !== undefined) { updateFields.push('category = ?'); updateValues.push(category); }
+      // Handle category update by converting category name to category_id
+      if (category !== undefined) { 
+        const [categoryRows] = await connection.execute(
+          'SELECT id FROM categories WHERE category_name = ?',
+          [category]
+        );
+        
+        if (categoryRows.length === 0) {
+          return res.status(400).json({ error: 'Invalid category name' });
+        }
+        
+        updateFields.push('category_id = ?'); 
+        updateValues.push(categoryRows[0].id); 
+      }
       if (item !== undefined) { updateFields.push('item_name = ?'); updateValues.push(item); }
       if (quantity !== undefined) { updateFields.push('quantity = ?'); updateValues.push(quantity); }
       if (remarks !== undefined) { updateFields.push('remarks = ?'); updateValues.push(remarks); }
