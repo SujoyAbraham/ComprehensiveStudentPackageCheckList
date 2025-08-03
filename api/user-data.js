@@ -49,13 +49,27 @@ export default async function handler(req, res) {
         lastUpdate: Date.now()
       });
 
+      const jsonString = JSON.stringify(compressedData);
+      const sizeInBytes = Buffer.byteLength(jsonString, 'utf8');
+      
+      // Check if size is under limit (8KB = 8192 bytes)
+      if (sizeInBytes > 8192) {
+        return res.status(413).json({
+          error: 'Data too large for storage',
+          currentSize: sizeInBytes,
+          maxSize: 8192,
+          message: 'Please reduce the number of custom items or progress data'
+        });
+      }
+
       // Store in Edge Config
       await set('user-data', compressedData);
       
       res.status(200).json({
         success: true,
         message: 'User data saved successfully',
-        dataSize: JSON.stringify(compressedData).length
+        dataSize: sizeInBytes,
+        compressionRatio: `${Math.round((1 - sizeInBytes / 8192) * 100)}% of limit used`
       });
 
     } else {
@@ -71,14 +85,14 @@ export default async function handler(req, res) {
   }
 }
 
-// Compress data to minimize storage usage
+// Ultra-compress data to stay under 8KB limit
 function compressData(data) {
   return {
-    // Use short keys to save space
+    // Use single chars to save maximum space
     n: `${data.firstName} ${data.lastName}`, // Full name as single string
-    p: compressProgress(data.progress), // Compressed progress
-    c: compressCustomItems(data.customItems), // Compressed custom items
-    t: data.lastUpdate // Timestamp
+    p: compressProgress(data.progress), // Ultra-compressed progress (array format)
+    c: compressCustomItems(data.customItems), // Ultra-compressed custom items
+    t: Math.floor(data.lastUpdate / 1000) // Timestamp in seconds, not milliseconds
   };
 }
 
@@ -88,59 +102,83 @@ function decompressData(compressed) {
   return {
     firstName,
     lastName: lastNameParts.join(' '),
-    progress: decompressProgress(compressed.p || {}),
-    customItems: decompressCustomItems(compressed.c || {}),
-    lastUpdate: compressed.t
+    progress: decompressProgress(compressed.p || []),
+    customItems: decompressCustomItems(compressed.c || []),
+    lastUpdate: (compressed.t || 0) * 1000 // Convert back to milliseconds
   };
 }
 
-// Compress progress data - only store true values and use item IDs
+// Ultra-compress progress data - use arrays for maximum space efficiency
 function compressProgress(progress) {
-  const compressed = {};
+  const packed = [];
+  const purchased = [];
   
   Object.entries(progress).forEach(([key, value]) => {
     if (value === 'true' || value === true) {
-      // Extract item ID and type (packed-123 -> p123, purchased-456 -> u456)
       const match = key.match(/^(packed|purchased)-(.+)$/);
       if (match) {
-        const type = match[1] === 'packed' ? 'p' : 'u';
+        const type = match[1];
         const itemId = match[2];
-        compressed[type + itemId] = 1; // Use 1 instead of true to save space
+        if (type === 'packed') {
+          packed.push(itemId);
+        } else {
+          purchased.push(itemId);
+        }
       }
     }
   });
   
-  return compressed;
+  // Return arrays: [packed_items, purchased_items]
+  return [packed, purchased];
 }
 
 // Decompress progress data back to full format
 function decompressProgress(compressed) {
   const progress = {};
   
-  Object.entries(compressed).forEach(([key, value]) => {
-    if (value === 1) {
-      const type = key[0] === 'p' ? 'packed' : 'purchased';
-      const itemId = key.substring(1);
-      progress[`${type}-${itemId}`] = 'true';
-    }
-  });
+  if (Array.isArray(compressed) && compressed.length === 2) {
+    const [packed, purchased] = compressed;
+    
+    // Restore packed items
+    (packed || []).forEach(itemId => {
+      progress[`packed-${itemId}`] = 'true';
+    });
+    
+    // Restore purchased items
+    (purchased || []).forEach(itemId => {
+      progress[`purchased-${itemId}`] = 'true';
+    });
+  }
   
   return progress;
 }
 
-// Compress custom items - use shorter keys and minimize data
+// Ultra-compress custom items - use arrays and minimal encoding
 function compressCustomItems(customItems) {
-  const compressed = {};
+  const compressed = [];
   
-  Object.entries(customItems).forEach(([id, item]) => {
-    compressed[id] = {
-      n: item.name,
-      c: item.category,
-      p: item.priority,
-      q: item.quantity || 1,
-      r: item.remarks || '',
-      e: item.estimatedCost || 0
-    };
+  Object.entries(customItems).forEach(([category, items]) => {
+    if (Array.isArray(items) && items.length > 0) {
+      items.forEach(item => {
+        // Store as array: [name, category, priority, quantity, remarks, cost]
+        // Only store non-default values
+        const compressedItem = [
+          item.name,
+          category.charAt(0), // First letter of category to save space
+          item.priority.charAt(0), // H/M/L for High/Medium/Low
+          item.quantity !== 1 ? item.quantity : null,
+          item.remarks || null,
+          item.estimatedCost || null
+        ];
+        
+        // Remove trailing nulls to save space
+        while (compressedItem.length > 3 && compressedItem[compressedItem.length - 1] === null) {
+          compressedItem.pop();
+        }
+        
+        compressed.push(compressedItem);
+      });
+    }
   });
   
   return compressed;
@@ -149,17 +187,41 @@ function compressCustomItems(customItems) {
 // Decompress custom items back to full format
 function decompressCustomItems(compressed) {
   const customItems = {};
+  const categoryMap = {
+    'E': 'Essential Documents',
+    'C': 'Clothing', 
+    'P': 'Personal Care',
+    'A': 'Academic Materials',
+    'K': 'Kitchen Items',
+    'M': 'Medical & Health',
+    'F': 'Financial',
+    'G': 'Groceries & Food',
+    'O': 'Miscellaneous'
+  };
   
-  Object.entries(compressed).forEach(([id, item]) => {
-    customItems[id] = {
-      name: item.n,
-      category: item.c,
-      priority: item.p,
-      quantity: item.q || 1,
-      remarks: item.r || '',
-      estimatedCost: item.e || 0
-    };
-  });
+  const priorityMap = { 'H': 'High', 'M': 'Medium', 'L': 'Low' };
+  
+  if (Array.isArray(compressed)) {
+    compressed.forEach(item => {
+      if (Array.isArray(item) && item.length >= 3) {
+        const [name, categoryChar, priorityChar, quantity, remarks, cost] = item;
+        const category = categoryMap[categoryChar] || 'Custom Items';
+        
+        if (!customItems[category]) {
+          customItems[category] = [];
+        }
+        
+        customItems[category].push({
+          name,
+          category,
+          priority: priorityMap[priorityChar] || 'Medium',
+          quantity: quantity || 1,
+          remarks: remarks || '',
+          estimatedCost: cost || 0
+        });
+      }
+    });
+  }
   
   return customItems;
 }
