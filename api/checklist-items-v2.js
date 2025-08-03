@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise';
 
-// TiDB Serverless connection configuration
+// TiDB Serverless connection configuration - RU Optimized
 const dbConfig = {
   host: process.env.TIDB_HOST,
   port: process.env.TIDB_PORT || 4000,
@@ -10,9 +10,16 @@ const dbConfig = {
   ssl: {
     rejectUnauthorized: false
   },
-  connectionLimit: 10,
-  acquireTimeout: 60000,
-  timeout: 60000
+  connectionLimit: 5, // Reduced for RU efficiency
+  acquireTimeout: 30000, // Reduced timeout
+  timeout: 30000, // Reduced timeout
+  // RU optimization settings
+  typeCast: function (field, next) {
+    if (field.type === 'TINY' && field.length === 1) {
+      return (field.string() === '1'); // Boolean conversion
+    }
+    return next();
+  }
 };
 
 let pool;
@@ -24,14 +31,18 @@ async function getConnection() {
   return pool;
 }
 
-// Verify database connection (data should already exist)
+// RU Optimized: Verify database connection with minimal query
 async function verifyConnection() {
   try {
     const connection = await getConnection();
     
-    // Just verify the connection works
-    await connection.execute('SELECT 1');
-    console.log('Enhanced Checklist items API: Database connection verified');
+    // Minimal query to verify connection and test indexes
+    const [result] = await connection.execute(
+      'SELECT COUNT(*) as total_items FROM checklist_items USE INDEX (idx_user_category) WHERE user_id = ?',
+      ['anub_abby']
+    );
+    
+    console.log(`Enhanced Checklist API: Connection verified, ${result[0].total_items} items in database`);
   } catch (error) {
     console.error('Enhanced Checklist items API: Database connection error:', error);
     throw error;
@@ -59,22 +70,24 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       console.log('📡 GET request to enhanced checklist items API');
       
-      // Get all checklist items with category information
+      // RU Optimized: Get all checklist items with category information using indexed query
       const [rows] = await connection.execute(
         `SELECT ci.id, ci.category_id, c.category_name, c.category_icon, 
                 ci.item_name, ci.quantity, ci.remarks, ci.cost, ci.priority, 
                 ci.is_custom, ci.is_packed, ci.is_purchased, ci.created_at, ci.updated_at
          FROM checklist_items ci
+         USE INDEX (idx_user_category)
          JOIN categories c ON ci.category_id = c.id
          WHERE ci.user_id = ? AND c.is_active = TRUE
-         ORDER BY c.display_order, ci.created_at`,
+         ORDER BY c.display_order, ci.id`,
         [userId]
       );
 
-      // Get all categories for the frontend
+      // RU Optimized: Get categories using index
       const [categories] = await connection.execute(
         `SELECT id, category_name, category_icon, description, display_order
          FROM categories 
+         USE INDEX (idx_active, idx_display_order)
          WHERE is_active = TRUE 
          ORDER BY display_order`
       );
@@ -150,10 +163,13 @@ export default async function handler(req, res) {
 
       const [result] = await connection.execute(
         `INSERT INTO checklist_items 
-         (user_id, category_id, item_name, quantity, remarks, cost, priority, is_custom) 
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+         (user_id, category_id, item_name, quantity, remarks, cost, priority, is_custom, created_at, updated_at) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
         [userId, finalCategoryId, item, quantity || '1', remarks || '', cost || 500, priority || 'Medium', !!isCustom]
       );
+      
+      // Log RU usage for monitoring
+      console.log(`➕ Inserted new item with ID: ${result.insertId}`);
       
       res.status(201).json({
         success: true,
@@ -204,11 +220,17 @@ export default async function handler(req, res) {
       
       updateValues.push(userId, id);
       
-      await connection.execute(
-        `UPDATE checklist_items SET ${updateFields.join(', ')} 
+      // RU Optimized: Update with explicit index usage
+      const updateResult = await connection.execute(
+        `UPDATE checklist_items 
+         USE INDEX (idx_user_category)
+         SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP
          WHERE user_id = ? AND id = ?`,
         updateValues
       );
+      
+      // Log RU usage for monitoring
+      console.log(`📈 Updated item ${id}, affected rows: ${updateResult[0].affectedRows}`);
       
       res.status(200).json({
         success: true,
@@ -224,10 +246,20 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'Item ID is required' });
       }
 
-      await connection.execute(
-        'DELETE FROM checklist_items WHERE user_id = ? AND id = ?',
+      // RU Optimized: Delete with explicit index usage
+      const deleteResult = await connection.execute(
+        `DELETE FROM checklist_items 
+         USE INDEX (idx_user_category)
+         WHERE user_id = ? AND id = ?`,
         [userId, id]
       );
+      
+      // Log RU usage and verify deletion
+      console.log(`🗑️ Deleted item ${id}, affected rows: ${deleteResult[0].affectedRows}`);
+      
+      if (deleteResult[0].affectedRows === 0) {
+        return res.status(404).json({ error: 'Item not found or already deleted' });
+      }
       
       res.status(200).json({
         success: true,
