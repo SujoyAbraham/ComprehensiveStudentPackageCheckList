@@ -209,6 +209,58 @@
             display: none !important;
         }
 
+        /* Floating Save Button */
+        .floating-save-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .floating-save-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(40, 167, 69, 0.4);
+        }
+
+        .floating-save-btn:active {
+            transform: scale(0.95);
+        }
+
+        .floating-save-btn.saving {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            animation: pulse 1s infinite;
+        }
+
+        .floating-save-btn.saved {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            animation: checkmark 0.6s ease;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes checkmark {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
         .user-setup {
             position: fixed;
             top: 0;
@@ -1140,19 +1192,26 @@
         }
 
         function displayTips() {
-            if (!appConfig.tips || appConfig.tips.length <= 1) return;
+            const tips = [
+                "Your progress is saved automatically in the cloud!",
+                "Use the search function to quickly find specific items",
+                "Pack items based on priority - High items first!",
+                "Add custom items specific to your needs using the Add Custom Item button"
+            ];
             
             const controlsDiv = document.querySelector('.controls');
-            const tipsDiv = document.createElement('div');
-            tipsDiv.innerHTML = `
-                <div style="background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 5px; padding: 15px; margin-top: 15px;">
-                    <h4 style="margin: 0 0 10px 0; color: #0056b3;">💡 Helpful Tips:</h4>
-                    <ul style="margin: 0; padding-left: 20px;">
-                        ${appConfig.tips.slice(1).map(tip => `<li style="margin-bottom: 5px;">${tip}</li>`).join('')}
-                    </ul>
-                </div>
-            `;
-            controlsDiv.appendChild(tipsDiv);
+            if (controlsDiv) {
+                const tipsDiv = document.createElement('div');
+                tipsDiv.innerHTML = `
+                    <div style="background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 5px; padding: 15px; margin-top: 15px;">
+                        <h4 style="margin: 0 0 10px 0; color: #0056b3;">💡 Helpful Tips:</h4>
+                        <ul style="margin: 0; padding-left: 20px;">
+                            ${tips.map(tip => `<li style="margin-bottom: 5px;">${tip}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                controlsDiv.appendChild(tipsDiv);
+            }
         }
 
         function renderCategories() {
@@ -1728,8 +1787,45 @@
             }
         }
 
+        // Manual save function for floating button
+        async function manualSave() {
+            const btn = document.getElementById('floating-save');
+            btn.classList.add('saving');
+            btn.innerHTML = '⏳';
+            
+            try {
+                await saveUserData();
+                
+                // Show success state
+                btn.classList.remove('saving');
+                btn.classList.add('saved');
+                btn.innerHTML = '✅';
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    btn.classList.remove('saved');
+                    btn.innerHTML = '💾';
+                }, 2000);
+                
+            } catch (error) {
+                // Show error state
+                btn.classList.remove('saving');
+                btn.innerHTML = '❌';
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    btn.innerHTML = '💾';
+                }, 2000);
+            }
+        }
+
         // Initialize the checklist when page loads
         document.addEventListener('DOMContentLoaded', initializeChecklist);
     </script>
+
+    <!-- Floating Save Button -->
+    <button id="floating-save" class="floating-save-btn" onclick="manualSave()" title="Save Progress to Cloud">
+        💾
+    </button>
 </body>
 </html>
