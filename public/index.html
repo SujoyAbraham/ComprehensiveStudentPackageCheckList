@@ -512,27 +512,11 @@
     </style>
 </head>
 <body>
-    <!-- User Setup Modal -->
-    <div id="user-setup" class="user-setup hidden">
-        <div class="user-setup-modal">
-            <h2>🎓 Welcome to Your Personal Study Abroad Checklist!</h2>
-            <p style="margin-bottom: 20px; color: #666;">Let's personalize your packing experience for your journey from India to Germany.</p>
-            
-            <input type="text" id="first-name" placeholder="Enter your first name" required>
-            <input type="text" id="last-name" placeholder="Enter your last name" required>
-            
-            <button onclick="saveUserInfo()">Start My Journey 🚀</button>
-            
-            <p style="font-size: 0.9em; color: #888; margin-top: 15px;">
-                Your information is stored securely in your browser and never shared.
-            </p>
-        </div>
-    </div>
 
     <div class="container">
         <div class="header">
-            <h1 id="main-title">🎓 Student Package Checklist</h1>
-            <p id="main-subtitle">India to Germany - Complete Relocation Guide</p>
+            <h1 id="main-title">🎓 Anub's Study Abroad Checklist</h1>
+            <p id="main-subtitle">Anub Abby - India to Germany Journey</p>
             <div id="welcome-message" class="welcome-text hidden"></div>
             <div id="cache-warning" style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 0.9em;">
                 ⚠️ <strong>Important:</strong> Your progress is saved in browser cache. Please don't clear browser data to keep your checklist progress!
@@ -572,17 +556,8 @@
                 <button onclick="exportToExcel()" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: transform 0.3s;">
                     📊 Export to Excel
                 </button>
-                <button onclick="shareChecklist()" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: transform 0.3s;">
-                    🔗 Share Checklist
-                </button>
-                <button onclick="syncWithShared()" id="sync-btn" style="background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: transform 0.3s;">
-                    🔄 Update Share Link
-                </button>
                 <button onclick="showAddItemModal()" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: transform 0.3s;">
                     ➕ Add Custom Item
-                </button>
-                <button onclick="resetUserSetup()" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; cursor: pointer; transition: transform 0.3s;">
-                    🔄 Reset User
                 </button>
             </div>
         </div>
@@ -796,16 +771,15 @@
         };
 
         let appConfig = {};
-        let userData = {};
-        let isSharedMode = false;
+        let userData = { firstName: 'Anub', lastName: 'Abby' };
         let userProgress = {};
+        let customItems = {};
         let isLoading = false;
 
         async function initializeChecklist() {
             await loadAppConfig();
             await loadUserData();
-            checkForSharedChecklist();
-            checkUserSetup();
+            updatePersonalizedContent();
             renderCategories();
             attachEventListeners();
             updateProgress();
@@ -819,17 +793,26 @@
                 if (response.ok) {
                     const result = await response.json();
                     if (result.data) {
-                        userData = {
-                            firstName: result.data.firstName,
-                            lastName: result.data.lastName
-                        };
+                        userData.firstName = result.data.firstName || 'Anub';
+                        userData.lastName = result.data.lastName || 'Abby';
                         userProgress = result.data.progress || {};
                         customItems = result.data.customItems || {};
+                        loadCustomItems(); // Load custom items into checklistData
                         console.log('User data loaded from Edge Config');
+                    } else {
+                        // Initialize with default values if no data
+                        customItems = {};
+                        userProgress = {};
                     }
+                } else {
+                    console.log('No user data found, using defaults');
+                    customItems = {};
+                    userProgress = {};
                 }
             } catch (error) {
                 console.warn('Failed to load user data from Edge Config:', error);
+                customItems = {};
+                userProgress = {};
             }
         }
 
@@ -864,15 +847,6 @@
             }
         }
 
-        function checkForSharedChecklist() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const shareData = urlParams.get('share');
-            
-            if (shareData) {
-                isSharedMode = true;
-                loadSharedChecklist(shareData);
-            }
-        }
 
         async function loadSharedChecklist(encodedData) {
             try {
@@ -1206,10 +1180,10 @@
                         </td>
                         <td>
                             <div class="item-actions">
-                                <button class="btn-edit" onclick="showEditItemModal('${itemId}', '${categoryName}', ${index})" title="Edit item">
+                                <button class="btn-edit" onclick="showEditItemModal('${itemId}', '${categoryName.replace(/'/g, "\\'")}', ${index})" title="Edit item">
                                     ✏️
                                 </button>
-                                <button class="btn-delete" onclick="deleteItem('${categoryName}', ${index})" title="Delete item">
+                                <button class="btn-delete" onclick="deleteItem('${categoryName.replace(/'/g, "\\'")}', ${index})" title="Delete item">
                                     🗑️
                                 </button>
                             </div>
