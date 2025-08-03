@@ -1709,9 +1709,12 @@
                 const icon = getCategoryIcon(categoryName);
                 const displayName = categoryName.length > 15 ? categoryName.substring(0, 15) + '...' : categoryName;
                 
+                // Get item count for this category
+                const itemCount = checklistData[categoryName] ? checklistData[categoryName].length : 0;
+                
                 return `
                     <div class="cost-category">
-                        <div class="category-name">${icon} ${displayName}</div>
+                        <div class="category-name">${icon} ${displayName} (${itemCount})</div>
                         <div class="category-cost">₹${cost.toLocaleString('en-IN')}</div>
                     </div>
                 `;
@@ -2491,7 +2494,7 @@
                     renderCategories();
                     updateProgress();
                     
-                    alert('✅ Item updated successfully!');
+                    // Removed success alert for better UX
                 } else {
                     console.log('❌ RESPONSE NOT OK - STATUS:', response.status);
                     const errorText = await response.text();
