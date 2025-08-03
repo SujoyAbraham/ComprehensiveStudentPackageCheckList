@@ -1,6 +1,6 @@
 # 🎓 Student Package Checklist - India to Germany
 
-A comprehensive, interactive web application designed to help Indian students planning their relocation to Germany for higher studies. This tool provides a detailed checklist with progress tracking, collaboration features, and data export capabilities.
+A comprehensive, interactive web application designed to help Indian students planning their relocation to Germany for higher studies. This tool provides a detailed checklist with **real-time cloud synchronization**, progress tracking, and data export capabilities powered by **TiDB Serverless database**.
 
 ## 🌟 Features
 
@@ -11,17 +11,20 @@ A comprehensive, interactive web application designed to help Indian students pl
 - **Priority System** - High, Medium, Low priority classification
 - **Cost Estimation** - Track estimated costs in Indian Rupees (₹)
 
-### 🎯 **Progress Tracking**
+### 🎯 **Real-time Progress Tracking**
+- **Live Cloud Sync** - All changes instantly saved to TiDB cloud database
 - **Real-time Progress Bar** showing completion percentage
 - **Dual Status Tracking** - Mark items as "Packed" and "Purchased" separately
 - **Visual Feedback** - Completed items highlighted with distinctive styling
-- **Persistent Storage** - Progress saved locally in browser
+- **Cross-device Synchronization** - Access your data from any device, anywhere
+- **No Data Loss** - Cloud persistence ensures your progress is never lost
 
 ### 👥 **Collaboration Features**
+- **Cloud-based Sharing** - Share your real-time progress with family and friends
 - **URL-Based Sharing** - Generate shareable links with embedded checklist data
-- **No Server Dependencies** - Works entirely with browser storage and URL sharing
 - **Progress Merging** - Import shared progress and custom items from others
-- **Local Collaboration** - View others' progress while maintaining your own data
+- **Multi-device Access** - View and update progress from any device
+- **Real-time Updates** - Changes sync instantly across all devices
 
 ### 🔍 **Advanced Filtering & Search**
 - **Category Filters** - Filter by specific item categories
@@ -45,9 +48,10 @@ A comprehensive, interactive web application designed to help Indian students pl
 
 ### 🔒 **Security & Privacy**
 - **XSS Protection** - Secure handling of user input
-- **Local Storage** - Data stored securely in browser
-- **No Personal Data Transmission** - Privacy-focused design
+- **Cloud Database Security** - Data stored securely in TiDB Serverless
+- **Encrypted Connections** - SSL/TLS encryption for all API calls
 - **Input Validation** - Comprehensive form validation
+- **Privacy-focused Design** - Only essential data stored
 
 ## 🚀 Live Demo
 
@@ -67,9 +71,11 @@ Visit the live application: [Student Checklist](https://your-vercel-app.vercel.a
 ## 🛠️ Technologies Used
 
 - **Frontend**: HTML5, CSS3, Vanilla JavaScript
+- **Database**: TiDB Serverless (MySQL-compatible cloud database)
+- **Backend**: Node.js with Vercel Serverless Functions
+- **APIs**: RESTful APIs for CRUD operations
 - **Styling**: CSS Grid, Flexbox, Custom CSS Animations
-- **Storage**: Browser localStorage, URL-based data sharing
-- **APIs**: Vercel Serverless Functions
+- **Storage**: TiDB Cloud Database + URL-based sharing
 - **Deployment**: Vercel Platform
 - **Version Control**: Git
 
@@ -77,12 +83,16 @@ Visit the live application: [Student Checklist](https://your-vercel-app.vercel.a
 
 ```
 ComprehensiveStudentPackageCheckList/
-├── index.html              # Main application file (1,576 lines)
+├── public/
+│   └── index.html          # Main application file with TiDB integration
 ├── api/
-│   ├── config.js           # Edge Config API endpoint
+│   ├── tidb-data.js        # User data API endpoint (TiDB)
+│   ├── checklist-items.js  # Checklist CRUD API endpoint (TiDB)
 │   └── share.js            # Sharing functionality API
+├── create_tables.sql       # Database table creation scripts
+├── insert_checklist_data.sql # Default checklist data population
+├── package.json            # Node.js dependencies
 ├── vercel.json             # Vercel deployment configuration
-├── test.html               # Comprehensive test results
 └── README.md               # This documentation
 ```
 
@@ -90,6 +100,7 @@ ComprehensiveStudentPackageCheckList/
 
 ### Prerequisites
 - Node.js (v18+ recommended)
+- TiDB Serverless account (free tier available)
 - Vercel CLI (for deployment)
 - Git
 
@@ -129,12 +140,30 @@ ComprehensiveStudentPackageCheckList/
    
    No additional configuration needed - the app works entirely with browser storage and URL-based sharing.
 
-### Environment Variables
+### TiDB Database Setup
 
-**No environment variables required!** The application works entirely with:
-- Browser localStorage for individual progress
-- URL-based sharing for collaboration
-- No external dependencies or paid services needed
+1. **Create TiDB Serverless Database**
+   ```bash
+   # Sign up at https://tidbcloud.com (free tier available)
+   # Create a new serverless cluster
+   ```
+
+2. **Configure Environment Variables**
+   ```bash
+   # Add to Vercel environment variables:
+   TIDB_HOST=your-tidb-host
+   TIDB_PORT=4000
+   TIDB_USER=your-username
+   TIDB_PASSWORD=your-password
+   TIDB_DATABASE=checklist
+   ```
+
+3. **Initialize Database**
+   ```bash
+   # Run the SQL scripts in your TiDB console:
+   # 1. Execute create_tables.sql
+   # 2. Execute insert_checklist_data.sql
+   ```
 
 ## 🧪 Testing
 
@@ -170,14 +199,22 @@ Run the test suite by opening `test.html` in your browser.
 
 ## 🔄 Version History
 
-### v2.0.0 (Current)
+### v3.0.0 (Current) - TiDB Cloud Integration
+- ✅ **TiDB Serverless Integration** - Real-time cloud database
+- ✅ **Live Data Synchronization** - Instant updates across devices
+- ✅ **CRUD API Operations** - Full create, read, update, delete functionality
+- ✅ **Cloud Persistence** - No more dependency on browser storage
+- ✅ **Real-time Status Updates** - Packed/purchased status synced to database
+- ✅ **Cross-device Access** - Access your data from anywhere
+
+### v2.0.0 - Enhanced Features
 - ✅ Added custom item management (Add/Edit/Delete)
 - ✅ Implemented modern modal interface
 - ✅ Enhanced security with XSS protection
 - ✅ Improved responsive design
 - ✅ Added comprehensive testing suite
 
-### v1.0.0 (Initial)
+### v1.0.0 - Initial Release
 - ✅ Basic checklist functionality
 - ✅ Progress tracking
 - ✅ Export to Excel
