@@ -1614,6 +1614,8 @@
         }
 
         function updateCostDashboard() {
+            console.log('📊 DEBUG: Updating cost dashboard with current data:', Object.keys(checklistData));
+            
             let totalCost = 0;
             let packedCost = 0;
             let purchasedCost = 0;
@@ -1623,6 +1625,7 @@
             // Calculate costs for each category
             Object.entries(checklistData).forEach(([categoryName, items]) => {
                 let categoryTotal = 0;
+                let categoryItemCount = items.length;
                 
                 items.forEach((item) => {
                     const cost = parseFloat(item.cost) || 0;
@@ -1638,10 +1641,14 @@
                     }
                 });
                 
+                console.log(`📊 DEBUG: ${categoryName}: ${categoryItemCount} items, ₹${categoryTotal}`);
+                
                 if (categoryTotal > 0) {
                     categoryCosts[categoryName] = categoryTotal;
                 }
             });
+            
+            console.log('📊 DEBUG: Final category costs:', categoryCosts);
 
             const remainingCost = totalCost - purchasedCost;
 
@@ -1665,6 +1672,9 @@
         function updateCategoryBreakdown(categoryCosts) {
             const breakdownContainer = document.getElementById('cost-breakdown');
             if (!breakdownContainer) return;
+            
+            console.log('📊 DEBUG: Updating category breakdown with costs:', categoryCosts);
+            console.log('📊 DEBUG: Available categoriesMap:', categoriesMap);
 
             // Use dynamic categories from meta table, with fallback to hardcoded
             const getCategoryIcon = (categoryName) => {
@@ -2456,6 +2466,19 @@
                     if (item) {
                         console.log('🔧 DEBUG: Item before update:', { ...item });
                         
+                        // Check if category is changing
+                        const oldCategoryName = Object.keys(checklistData).find(categoryName => 
+                            checklistData[categoryName].some(categoryItem => categoryItem.id == editingItemId)
+                        );
+                        const newCategoryName = categoryName;
+                        const categoryChanged = oldCategoryName !== newCategoryName;
+                        
+                        console.log('🔧 DEBUG: Category change check:', {
+                            oldCategory: oldCategoryName,
+                            newCategory: newCategoryName,
+                            changed: categoryChanged
+                        });
+                        
                         // Only update the fields that were actually changed
                         const oldCost = item.cost;
                         item.item = itemData.item;
@@ -2465,11 +2488,30 @@
                         item.priority = itemData.priority;
                         
                         console.log('🔧 DEBUG: Cost update - Old:', oldCost, 'New:', item.cost, 'Raw input:', itemData.cost);
-                        // Don't overwrite isPacked, isPurchased, id, categoryId etc.
                         
-                        // Also update category if it changed
-                        if (categoryId) {
-                            item.categoryId = categoryId;
+                        // Handle category migration if category changed
+                        if (categoryChanged && oldCategoryName && newCategoryName) {
+                            console.log('🔄 Migrating item between categories:', oldCategoryName, '→', newCategoryName);
+                            
+                            // Remove from old category
+                            const oldCategoryIndex = checklistData[oldCategoryName].findIndex(categoryItem => categoryItem.id == editingItemId);
+                            if (oldCategoryIndex !== -1) {
+                                checklistData[oldCategoryName].splice(oldCategoryIndex, 1);
+                                console.log('❌ Removed from', oldCategoryName);
+                            }
+                            
+                            // Add to new category
+                            if (!checklistData[newCategoryName]) {
+                                checklistData[newCategoryName] = [];
+                            }
+                            item.categoryId = categoryId; // Update category ID
+                            checklistData[newCategoryName].push(item);
+                            console.log('✅ Added to', newCategoryName);
+                        } else {
+                            // Update category ID if it changed but no migration needed
+                            if (categoryId) {
+                                item.categoryId = categoryId;
+                            }
                         }
                         
                         console.log('🔧 DEBUG: Item after update:', { ...item });
@@ -2477,9 +2519,14 @@
                         console.error('❌ ERROR: Could not find item with ID:', editingItemId);
                     }
                     
-                    console.log('✅ Item updated successfully in TiDB, reloading data');
+                    console.log('✅ Item updated successfully in TiDB, updating UI immediately');
                     
-                    // Reload checklist data to ensure consistency
+                    // Update UI immediately with local changes
+                    renderCategories();
+                    updateProgress();
+                    
+                    console.log('🔄 Reloading data from server for consistency...');
+                    // Also reload checklist data to ensure server consistency
                     await loadChecklistData();
                     renderCategories();
                     updateProgress();
