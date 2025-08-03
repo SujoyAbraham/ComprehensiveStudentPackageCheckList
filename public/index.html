@@ -2260,7 +2260,7 @@
                 }
                 
                 // Ensure cost is properly formatted
-                const cost = parseFloat(itemData.cost) || 500;
+                const cost = itemData.cost === '' ? 500 : parseFloat(itemData.cost);
                 
                 const requestData = {
                     categoryId: categoryId,
@@ -2373,6 +2373,9 @@
                 
                 console.log('🔧 DEBUG: categoryId from meta table:', categoryId);
                 
+                // Get current item for comparison
+                const currentItem = findItemById(editingItemId);
+                
                 const updateData = {
                     id: parseInt(editingItemId),
                     categoryId: categoryId,
@@ -2380,13 +2383,20 @@
                     item: itemData.item,
                     quantity: itemData.quantity,
                     remarks: itemData.remarks,
-                    cost: parseFloat(itemData.cost) || 500,
+                    cost: itemData.cost === '' ? 500 : parseFloat(itemData.cost),
                     priority: itemData.priority
                 };
                 
                 console.log('🔧 DEBUG: Original itemData.cost:', itemData.cost);
                 console.log('🔧 DEBUG: Parsed cost:', parseFloat(itemData.cost));
                 console.log('🔧 DEBUG: Final cost in updateData:', updateData.cost);
+                console.log('🔧 DEBUG: All field updates:', {
+                    name: `"${itemData.item}" (was: "${currentItem?.item}")`,
+                    quantity: `"${itemData.quantity}" (was: "${currentItem?.quantity}")`,
+                    priority: `"${itemData.priority}" (was: "${currentItem?.priority}")`,
+                    cost: `${updateData.cost} (was: ${currentItem?.cost})`,
+                    remarks: `"${itemData.remarks}" (was: "${currentItem?.remarks}")`
+                });
                 console.log('🔧 DEBUG: Complete update data being sent:', updateData);
                 
                 // Try enhanced API first, fallback to original
@@ -2451,7 +2461,7 @@
                         item.item = itemData.item;
                         item.quantity = itemData.quantity;
                         item.remarks = itemData.remarks;
-                        item.cost = parseFloat(itemData.cost) || 500;
+                        item.cost = itemData.cost === '' ? 500 : parseFloat(itemData.cost);
                         item.priority = itemData.priority;
                         
                         console.log('🔧 DEBUG: Cost update - Old:', oldCost, 'New:', item.cost, 'Raw input:', itemData.cost);
