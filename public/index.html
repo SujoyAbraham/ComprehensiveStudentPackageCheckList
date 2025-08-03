@@ -2412,7 +2412,7 @@
                         item: itemData.item,
                         quantity: itemData.quantity,
                         remarks: itemData.remarks,
-                        cost: parseFloat(itemData.cost) || 500,
+                        cost: itemData.cost === '' ? 500 : parseFloat(itemData.cost),
                         priority: itemData.priority
                     };
                     console.log('🔧 DEBUG: Fallback data:', fallbackData);

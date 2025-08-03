@@ -165,7 +165,7 @@ export default async function handler(req, res) {
         `INSERT INTO checklist_items 
          (user_id, category_id, item_name, quantity, remarks, cost, priority, is_custom, created_at, updated_at) 
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-        [userId, finalCategoryId, item, quantity || '1', remarks || '', cost || 500, priority || 'Medium', !!isCustom]
+        [userId, finalCategoryId, item, quantity || '1', remarks || '', cost === '' || cost === null ? 500 : (isNaN(parseFloat(cost)) ? 500 : parseFloat(cost)), priority || 'Medium', !!isCustom]
       );
       
       // Log RU usage for monitoring
@@ -209,7 +209,11 @@ export default async function handler(req, res) {
       if (item !== undefined) { updateFields.push('item_name = ?'); updateValues.push(item); }
       if (quantity !== undefined) { updateFields.push('quantity = ?'); updateValues.push(quantity); }
       if (remarks !== undefined) { updateFields.push('remarks = ?'); updateValues.push(remarks); }
-      if (cost !== undefined) { updateFields.push('cost = ?'); updateValues.push(parseFloat(cost) || 500); }
+      if (cost !== undefined) { 
+        const parsedCost = cost === '' || cost === null ? 500 : parseFloat(cost);
+        updateFields.push('cost = ?'); 
+        updateValues.push(isNaN(parsedCost) ? 500 : parsedCost); 
+      }
       if (priority !== undefined) { updateFields.push('priority = ?'); updateValues.push(priority); }
       if (isPacked !== undefined) { updateFields.push('is_packed = ?'); updateValues.push(!!isPacked); }
       if (isPurchased !== undefined) { updateFields.push('is_purchased = ?'); updateValues.push(!!isPurchased); }
