@@ -2114,14 +2114,21 @@
         }
 
         function showEditItemModal(itemId, categoryName, itemIndex) {
+            console.log('🔧 DEBUG: showEditItemModal called');
+            console.log('🔧 DEBUG: itemId:', itemId, 'categoryName:', categoryName, 'itemIndex:', itemIndex);
+            
             // Find the item by ID instead of using index
             const item = findItemById(itemId);
+            console.log('🔧 DEBUG: Found item:', item);
+            
             if (!item) {
+                console.error('❌ ERROR: Item not found with ID:', itemId);
                 alert('Item not found');
                 return;
             }
             
             editingItemId = itemId;
+            console.log('🔧 DEBUG: Set editingItemId to:', editingItemId);
             
             document.getElementById('modal-title').textContent = 'Edit Item';
             document.getElementById('save-btn').textContent = 'Update Item';
@@ -2133,6 +2140,14 @@
             document.getElementById('item-priority').value = item.priority || 'Medium';
             document.getElementById('item-cost').value = item.cost || '';
             document.getElementById('item-remarks').value = item.remarks || '';
+            
+            console.log('🔧 DEBUG: Form populated with data:', {
+                name: item.item,
+                quantity: item.quantity,
+                priority: item.priority,
+                cost: item.cost,
+                remarks: item.remarks
+            });
             
             // Set category - try to match by name, with enhanced meta table support
             const categorySelect = document.getElementById('item-category');
@@ -2167,6 +2182,9 @@
         async function saveItem(event) {
             event.preventDefault();
             
+            console.log('🔧 DEBUG: saveItem called');
+            console.log('🔧 DEBUG: editingItemId:', editingItemId);
+            
             const itemData = {
                 item: document.getElementById('item-name').value.trim(),
                 quantity: document.getElementById('item-quantity').value || '1',
@@ -2177,6 +2195,9 @@
             };
             
             const categoryName = document.getElementById('item-category').value;
+            
+            console.log('🔧 DEBUG: Form data collected:', itemData);
+            console.log('🔧 DEBUG: Category selected:', categoryName);
             
             if (!itemData.item) {
                 alert('Please enter an item name');
@@ -2191,18 +2212,24 @@
             
             try {
                 if (editingItemId) {
+                    console.log('🔧 DEBUG: Editing existing item with ID:', editingItemId);
                     // Editing existing item
                     await updateExistingItem(categoryName, itemData);
+                    console.log('✅ Update completed successfully');
                 } else {
+                    console.log('🔧 DEBUG: Adding new item');
                     // Adding new item
                     await addNewItem(categoryName, itemData);
+                    console.log('✅ Add completed successfully');
                 }
                 
+                console.log('🔧 DEBUG: Closing modal and updating UI');
                 closeItemModal();
                 renderCategories();
                 updateProgress();
             } catch (error) {
-                console.error('Error saving item:', error);
+                console.error('🚨 Error in saveItem:', error);
+                alert(`Error saving item:\n\n${error.message}\n\nCheck console for details.`);
             } finally {
                 // Re-enable form
                 saveBtn.textContent = originalText;
@@ -2315,6 +2342,17 @@
 
         async function updateExistingItem(categoryName, itemData) {
             try {
+                console.log('🔧 DEBUG: Starting updateExistingItem');
+                console.log('🔧 DEBUG: editingItemId:', editingItemId);
+                console.log('🔧 DEBUG: categoryName:', categoryName);
+                console.log('🔧 DEBUG: itemData:', itemData);
+                
+                if (!editingItemId) {
+                    console.error('❌ ERROR: editingItemId is null or undefined');
+                    alert('Error: No item selected for editing. Please try again.');
+                    return;
+                }
+                
                 // Get category ID from meta table if available
                 let categoryId = null;
                 const categorySelect = document.getElementById('item-category');
@@ -2324,6 +2362,8 @@
                     categoryId = parseInt(selectedOption.getAttribute('data-category-id'));
                 }
                 
+                console.log('🔧 DEBUG: categoryId from meta table:', categoryId);
+                
                 const updateData = {
                     id: parseInt(editingItemId),
                     categoryId: categoryId,
@@ -2331,11 +2371,14 @@
                     item: itemData.item,
                     quantity: itemData.quantity,
                     remarks: itemData.remarks,
-                    cost: itemData.cost,
+                    cost: parseFloat(itemData.cost) || 500,
                     priority: itemData.priority
                 };
                 
+                console.log('🔧 DEBUG: Update data being sent:', updateData);
+                
                 // Try enhanced API first, fallback to original
+                console.log('🔧 DEBUG: Sending PUT request to enhanced API');
                 let response = await fetch('/api/checklist-items-v2', {
                     method: 'PUT',
                     headers: {
@@ -2344,29 +2387,49 @@
                     body: JSON.stringify(updateData)
                 });
                 
+                console.log('🔧 DEBUG: Enhanced API response status:', response.status);
+                console.log('🔧 DEBUG: Enhanced API response ok:', response.ok);
+                
                 // Fallback to original API if enhanced fails
                 if (!response.ok) {
+                    console.log('⚠️ Enhanced API failed, trying fallback API');
+                    const fallbackData = {
+                        id: parseInt(editingItemId),
+                        category: categoryName,
+                        item: itemData.item,
+                        quantity: itemData.quantity,
+                        remarks: itemData.remarks,
+                        cost: parseFloat(itemData.cost) || 500,
+                        priority: itemData.priority
+                    };
+                    console.log('🔧 DEBUG: Fallback data:', fallbackData);
+                    
                     response = await fetch('/api/checklist-items', {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({
-                            id: parseInt(editingItemId),
-                            category: categoryName,
-                            item: itemData.item,
-                            quantity: itemData.quantity,
-                            remarks: itemData.remarks,
-                            cost: itemData.cost,
-                            priority: itemData.priority
-                        })
+                        body: JSON.stringify(fallbackData)
                     });
+                    
+                    console.log('🔧 DEBUG: Fallback API response status:', response.status);
+                    console.log('🔧 DEBUG: Fallback API response ok:', response.ok);
                 }
                 
                 if (response.ok) {
+                    console.log('✅ API response is OK, processing update');
+                    
+                    // Get the response data
+                    const responseData = await response.json();
+                    console.log('🔧 DEBUG: API response data:', responseData);
+                    
                     // Update local data properly without overwriting important fields
                     const item = findItemById(editingItemId);
+                    console.log('🔧 DEBUG: Found item for update:', item);
+                    
                     if (item) {
+                        console.log('🔧 DEBUG: Item before update:', { ...item });
+                        
                         // Only update the fields that were actually changed
                         item.item = itemData.item;
                         item.quantity = itemData.quantity;
@@ -2379,21 +2442,30 @@
                         if (categoryId) {
                             item.categoryId = categoryId;
                         }
+                        
+                        console.log('🔧 DEBUG: Item after update:', { ...item });
+                    } else {
+                        console.error('❌ ERROR: Could not find item with ID:', editingItemId);
                     }
                     
-                    console.log('✅ Item updated successfully in TiDB, local data synced');
+                    console.log('✅ Item updated successfully in TiDB, reloading data');
                     
                     // Reload checklist data to ensure consistency
                     await loadChecklistData();
                     renderCategories();
                     updateProgress();
+                    
+                    alert('✅ Item updated successfully!');
                 } else {
-                    console.error('Failed to update item:', response.status);
-                    alert('Failed to update item. Please try again.');
+                    const errorText = await response.text();
+                    console.error('❌ Failed to update item. Status:', response.status);
+                    console.error('❌ Error response:', errorText);
+                    alert(`Failed to update item.\n\nStatus: ${response.status}\nError: ${errorText}\n\nPlease check console for details.`);
                 }
             } catch (error) {
-                console.error('Error updating item:', error);
-                alert('Error updating item. Please check your connection.');
+                console.error('🚨 FATAL ERROR in updateExistingItem:', error);
+                console.error('🚨 Error stack:', error.stack);
+                alert(`Fatal error updating item:\n\n${error.message}\n\nCheck console for full details.`);
             }
         }
 
