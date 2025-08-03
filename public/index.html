@@ -770,14 +770,12 @@
             search: ''
         };
 
-        let appConfig = {};
         let userData = { firstName: 'Anub', lastName: 'Abby' };
         let userProgress = {};
         let customItems = {};
         let isLoading = false;
 
         async function initializeChecklist() {
-            await loadAppConfig();
             await loadUserData();
             updatePersonalizedContent();
             renderCategories();
@@ -1046,25 +1044,6 @@
             return div.innerHTML;
         }
 
-        async function loadAppConfig() {
-            try {
-                const response = await fetch('/api/config');
-                if (response.ok) {
-                    appConfig = await response.json();
-                    console.log('App config loaded:', appConfig.version);
-                } else {
-                    console.warn('Failed to load app config, using defaults');
-                }
-            } catch (error) {
-                console.warn('Failed to fetch app config:', error);
-                // Fallback config
-                appConfig = {
-                    version: '1.0.0',
-                    features: { progressTracking: true },
-                    tips: ["Don't clear your browser cache to keep your progress!"]
-                };
-            }
-        }
 
         function showCacheWarnings() {
             const cacheWarning = document.getElementById('cache-warning');
